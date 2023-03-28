@@ -9,7 +9,7 @@
 #include <BLEServer.h>
 #include <ArduinoJson.h>
 #include <Adafruit_NeoPixel.h>
-#include <SoftwareSerial.h>
+#include <HardwareSerial.h>
 
 // See the following for generating UUIDs:
 // https://www.uuidgenerator.net/
@@ -20,11 +20,12 @@ bool deviceConnected = false;
 
 Adafruit_NeoPixel strip(1, 0 , NEO_GRB + NEO_KHZ800);
 
-const int actuator_pins[10] = {13,12,27,33,15,32,14,20,26,25};
-int actuator_num = 10;
+HardwareSerial mySerial(1);
+
+const int subchain_pins[12] = {5,19,21,8,7,14,32,15,33,27,12,13};
+const int subchain_num = 12;
 uint32_t colors[5];
 int color_num = 5;
-int count_timer = 0;
 
 class MyCharacteristicCallbacks: public BLECharacteristicCallbacks {
     void onWrite(BLECharacteristic *pCharacteristic) {
@@ -34,24 +35,44 @@ class MyCharacteristicCallbacks: public BLECharacteristicCallbacks {
         // decode JSON
         DynamicJsonDocument command(1024);
         deserializeJson(command, value);
-        
-        int motor_addr = command["addr"].as<int>();
-        Serial.println(motor_addr);
-        if(motor_addr>=0 && motor_addr<5){
-            for(int i=0; i<actuator_num; ++i){
-              digitalWrite(actuator_pins[i], LOW);
-            }
-            digitalWrite(actuator_pins[2*motor_addr], HIGH);
-            strip.setPixelColor(0, colors[motor_addr]);
-            strip.show();
-            count_timer = 10;
-        }
-        else{
-          Serial.println("input is not in range...");
-        }
+        sendCommand(command);
     }
 
-    
+    /* command format
+     *  command = {
+            'addr':motor_addr,
+            'mode':start_or_stop,
+            'duty':3, # default
+            'freq':2, # default
+            'wave':0, # default
+        }
+     */
+    void sendCommand(DynamicJsonDocument& command){
+      int motor_addr = command["addr"].as<int>();
+      int is_start = command["mode"].as<int>();
+      int duty = command["duty"].as<int>();
+      int freq = command["freq"].as<int>();
+      int wave = command["wave"].as<int>();
+      if(motor_addr>=0 && motor_addr<96){// maximum number of motor on one chain
+        if(is_start == 1){//start command, two bytes
+          uint8_t message[2];
+          message[0] = (motor_addr << 1) + is_start;
+          message[1] = 192 + (duty << 4) + (freq << 2) + wave;
+          mySerial.write(message, 2);
+          strip.setPixelColor(0, colors[motor_addr % color_num]);
+          strip.show();
+        }
+        else{//stop command, only one byte
+          uint8_t message = (motor_addr << 1) + is_start;
+          mySerial.write(message);
+          strip.setPixelColor(0, 0, 0, 0);
+          strip.show();
+        }
+      }
+      else{
+        Serial.println("motor address is not in range...");
+      }
+    }
 };
 
 class MyServerCallbacks: public BLEServerCallbacks {
@@ -70,8 +91,13 @@ class MyServerCallbacks: public BLEServerCallbacks {
 
 
 void setup() {
-  Serial.begin(115200, SERIAL_8E1);//even parity check
+  Serial.begin(115200);//even parity check
+  pinMode(8, OUTPUT);
+  pinMode(7, INPUT);
+  mySerial.begin(115200, SERIAL_8E1, 7, 8);
+  
   Serial.println("Starting BLE work!");
+  
 
   //setup LED
   pinMode(LED_BUILTIN, OUTPUT);
@@ -111,23 +137,13 @@ void setup() {
   Serial.println("Characteristic defined! Now you can read it in your phone!");
 
   //actuator pin setup
-  for (int i=0; i<actuator_num; ++i){
-    pinMode(actuator_pins[i], OUTPUT);
-    digitalWrite(actuator_pins[i], LOW);
-  }
+//  for (int i=0; i<subchain_num; ++i){
+//    pinMode(subchain_pins[i], OUTPUT);
+//    digitalWrite(subchain_pins[i], LOW);
+//  }
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
-  if(count_timer>0){
-    count_timer--;
-    if(count_timer == 0){
-      for(int i=0; i<actuator_num; ++i){
-        digitalWrite(actuator_pins[i], LOW);
-      }
-      strip.setPixelColor(0, 0, 0, 0);
-      strip.show();
-    }
-  }
-  delay(100);
+  delay(1000);
 }
