@@ -9,7 +9,7 @@
 #include <BLEServer.h>
 #include <ArduinoJson.h>
 #include <Adafruit_NeoPixel.h>
-#include <HardwareSerial.h>
+#include <SoftwareSerial.h>
 
 // See the following for generating UUIDs:
 // https://www.uuidgenerator.net/
@@ -20,12 +20,12 @@ bool deviceConnected = false;
  
 Adafruit_NeoPixel strip(1, 0 , NEO_GRB + NEO_KHZ800);
 
-//HardwareSerial mySerial(1);
-
 const int subchain_pins[12] = {5,19,21,8,7,14,32,15,33,27,12,13};
 const int subchain_num = 12;
 uint32_t colors[5];
 int color_num = 5;
+
+EspSoftwareSerial::UART mySerial;
 
 class MyCharacteristicCallbacks: public BLECharacteristicCallbacks {
     void onWrite(BLECharacteristic *pCharacteristic) {
@@ -58,13 +58,13 @@ class MyCharacteristicCallbacks: public BLECharacteristicCallbacks {
           uint8_t message[2];
           message[0] = (motor_addr << 1) + is_start;
           message[1] = 192 + (duty << 4) + (freq << 2) + wave;
-          Serial1.write(message, 2);
+          mySerial.write(message, 2);
           strip.setPixelColor(0, colors[motor_addr % color_num]);
           strip.show();
         }
         else{//stop command, only one byte
           uint8_t message = (motor_addr << 1) + is_start;
-          Serial1.write(message);
+          mySerial.write(message);
           strip.setPixelColor(0, 0, 0, 0);
           strip.show();
         }
@@ -94,9 +94,15 @@ void setup() {
   Serial.begin(115200);//even parity check
 //  pinMode(8, OUTPUT);
 //  pinMode(7, INPUT);
-//  mySerial.begin(115200, SERIAL_8E1, 7, 8);
-  Serial1.begin(115200, SERIAL_8E1);
-  
+//  Serial1.begin(115200, SERIAL_8E1);// Hardware Serial
+  mySerial.begin(115200, SWSERIAL_8E1, -1, 12, false);
+  mySerial.enableIntTx(false);
+  if (!mySerial) { // If the object did not initialize, then its configuration is invalid
+    Serial.println("Invalid EspSoftwareSerial pin configuration, check config"); 
+    while (1) { // Don't continue with invalid configuration
+      delay (1000);
+    }
+  }
   Serial.println("Starting BLE work!");
 
   Serial.println(SOC_UART_NUM);
