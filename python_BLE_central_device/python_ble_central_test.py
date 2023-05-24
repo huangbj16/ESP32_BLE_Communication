@@ -8,12 +8,13 @@ async def setMotor(client):
     while True:
         motor_addr = int(input('what is the next motor you want to control?'))
         start_or_stop = int(input('1 for start and 0 for stop?'))
+        # duty = int(input('0-3 for duty?'))
         command = {
             'addr':motor_addr,
             'mode':start_or_stop,
             'duty':3, # default
             'freq':2, # default
-            'wave':0, # default
+            'wave':1, # default
         }
         output = bytearray(json.dumps(command), 'utf-8')
         await client.write_gatt_char(MOTOR_UUID,  output)

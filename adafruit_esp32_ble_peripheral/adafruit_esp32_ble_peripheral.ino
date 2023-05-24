@@ -17,10 +17,10 @@
 #define SERVICE_UUID        "f10016f6-542b-460a-ac8b-bbb0b2010596"
 #define CHARACTERISTIC_UUID "f22535de-5375-44bd-8ca9-d0ea9ff9e419"
 bool deviceConnected = false;
-
+ 
 Adafruit_NeoPixel strip(1, 0 , NEO_GRB + NEO_KHZ800);
 
-HardwareSerial mySerial(1);
+//HardwareSerial mySerial(1);
 
 const int subchain_pins[12] = {5,19,21,8,7,14,32,15,33,27,12,13};
 const int subchain_num = 12;
@@ -58,13 +58,13 @@ class MyCharacteristicCallbacks: public BLECharacteristicCallbacks {
           uint8_t message[2];
           message[0] = (motor_addr << 1) + is_start;
           message[1] = 192 + (duty << 4) + (freq << 2) + wave;
-          mySerial.write(message, 2);
+          Serial1.write(message, 2);
           strip.setPixelColor(0, colors[motor_addr % color_num]);
           strip.show();
         }
         else{//stop command, only one byte
           uint8_t message = (motor_addr << 1) + is_start;
-          mySerial.write(message);
+          Serial1.write(message);
           strip.setPixelColor(0, 0, 0, 0);
           strip.show();
         }
@@ -92,12 +92,14 @@ class MyServerCallbacks: public BLEServerCallbacks {
 
 void setup() {
   Serial.begin(115200);//even parity check
-  pinMode(8, OUTPUT);
-  pinMode(7, INPUT);
-  mySerial.begin(115200, SERIAL_8E1, 7, 8);
+//  pinMode(8, OUTPUT);
+//  pinMode(7, INPUT);
+//  mySerial.begin(115200, SERIAL_8E1, 7, 8);
+  Serial1.begin(115200, SERIAL_8E1);
   
   Serial.println("Starting BLE work!");
-  
+
+  Serial.println(SOC_UART_NUM);
 
   //setup LED
   pinMode(LED_BUILTIN, OUTPUT);
@@ -106,12 +108,13 @@ void setup() {
   digitalWrite(2, HIGH);
   strip.begin();
   strip.setBrightness(64);
-  strip.show();
   colors[0] = strip.Color(255, 0, 0);
   colors[1] = strip.Color(0, 255, 0);
   colors[2] = strip.Color(0, 0, 255);
   colors[3] = strip.Color(255, 0, 255);
   colors[4] = strip.Color(255, 255, 0);
+  strip.setPixelColor(0, colors[0]);
+  strip.show();
   
   //BLE setup
   BLEDevice::init("BINGJIAN_FEATHER");
