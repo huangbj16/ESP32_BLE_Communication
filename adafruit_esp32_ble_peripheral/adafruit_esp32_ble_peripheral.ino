@@ -20,12 +20,12 @@ bool deviceConnected = false;
  
 Adafruit_NeoPixel strip(1, 0 , NEO_GRB + NEO_KHZ800);
 
-const int subchain_pins[12] = {5,19,21,8,7,14,32,15,33,27,12,13};
+const int subchain_pins[12] = {5,19,21,7,8,14,32,15,33,27,12,13};//26 and 25 does not have board connection yet. need to remove 7 and 8 
 const int subchain_num = 12;
 uint32_t colors[5];
 int color_num = 5;
 
-EspSoftwareSerial::UART mySerial;
+EspSoftwareSerial::UART serial_group[12];
 
 class MyCharacteristicCallbacks: public BLECharacteristicCallbacks {
     void onWrite(BLECharacteristic *pCharacteristic) {
@@ -58,13 +58,13 @@ class MyCharacteristicCallbacks: public BLECharacteristicCallbacks {
           uint8_t message[2];
           message[0] = (motor_addr << 1) + is_start;
           message[1] = 192 + (duty << 4) + (freq << 2) + wave;
-          mySerial.write(message, 2);
+          serial_group[5].write(message, 2);
           strip.setPixelColor(0, colors[motor_addr % color_num]);
           strip.show();
         }
         else{//stop command, only one byte
           uint8_t message = (motor_addr << 1) + is_start;
-          mySerial.write(message);
+          serial_group[5].write(message);
           strip.setPixelColor(0, 0, 0, 0);
           strip.show();
         }
@@ -95,17 +95,19 @@ void setup() {
 //  pinMode(8, OUTPUT);
 //  pinMode(7, INPUT);
 //  Serial1.begin(115200, SERIAL_8E1);// Hardware Serial
-  mySerial.begin(115200, SWSERIAL_8E1, -1, 12, false);
-  mySerial.enableIntTx(false);
-  if (!mySerial) { // If the object did not initialize, then its configuration is invalid
-    Serial.println("Invalid EspSoftwareSerial pin configuration, check config"); 
-    while (1) { // Don't continue with invalid configuration
-      delay (1000);
+  Serial.print("number of hardware serial available: ");
+  Serial.println(SOC_UART_NUM);
+  for(int i=0; i<subchain_num; ++i){
+    Serial.print("initialize uart on ");
+    Serial.println(subchain_pins[i]);
+    serial_group[i].begin(115200, SWSERIAL_8E1, -1, subchain_pins[i], false);
+    serial_group[i].enableIntTx(false);
+    if (!serial_group[i]) { // If the object did not initialize, then its configuration is invalid
+      Serial.println("Invalid EspSoftwareSerial pin configuration, check config"); 
     }
+    delay(200);
   }
   Serial.println("Starting BLE work!");
-
-  Serial.println(SOC_UART_NUM);
 
   //setup LED
   pinMode(LED_BUILTIN, OUTPUT);
