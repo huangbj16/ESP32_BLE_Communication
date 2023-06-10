@@ -2,7 +2,7 @@ import asyncio
 from bleak import BleakScanner, BleakClient
 import json
 
-MOTOR_UUID = 'f22535de-5375-44bd-8ca9-d0ea9ff9e419'
+MOTOR_UUID = 'f22535de-5375-44bd-8ca9-d0ea9ff9e410'
 
 async def setMotor(client):
     while True:
@@ -17,6 +17,7 @@ async def setMotor(client):
             'wave':1, # default
         }
         output = bytearray(json.dumps(command), 'utf-8')
+        print(output)
         await client.write_gatt_char(MOTOR_UUID,  output)
 
 async def main():
@@ -24,7 +25,7 @@ async def main():
     for d in devices:
         print('device name = ', d.name)
         if d.name != None:
-            if d.name == 'BINGJIAN_FEATHER':
+            if d.name == 'FEATHER_ESP32':
                 print('feather device found!!!')
                 async with BleakClient(d.address) as client:
                     print(f'BLE connected to {d.address}')

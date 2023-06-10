@@ -14,14 +14,15 @@
 // See the following for generating UUIDs:
 // https://www.uuidgenerator.net/
 
-#define SERVICE_UUID        "f10016f6-542b-460a-ac8b-bbb0b2010596"
-#define CHARACTERISTIC_UUID "f22535de-5375-44bd-8ca9-d0ea9ff9e419"
+#define SERVICE_UUID        "f10016f6-542b-460a-ac8b-bbb0b2010597"
+#define CHARACTERISTIC_UUID "f22535de-5375-44bd-8ca9-d0ea9ff9e410"
 bool deviceConnected = false;
  
 Adafruit_NeoPixel strip(1, 0 , NEO_GRB + NEO_KHZ800);
 
-const int subchain_pins[12] = {5,19,21,7,8,14,32,15,33,27,12,13};//26 and 25 does not have board connection yet. need to remove 7 and 8 
-const int subchain_num = 12;
+//const int subchain_pins[6] = {26,25,5,19,21,14,32,15,33,27,12,13};//26 and 25 does not have board connection yet. need to remove 7 and 8 
+const int subchain_pins[6] = {26,25,5,19,21,14};//26 and 25 does not have board connection yet. need to remove 7 and 8 
+const int subchain_num = 6;  
 uint32_t colors[5];
 int color_num = 5;
 
@@ -125,7 +126,7 @@ void setup() {
   strip.show();
   
   //BLE setup
-  BLEDevice::init("BINGJIAN_FEATHER");
+  BLEDevice::init("FEATHER_ESP32");
   BLEServer *pServer = BLEDevice::createServer();
   pServer->setCallbacks(new MyServerCallbacks());
   BLEService *pService = pServer->createService(SERVICE_UUID);

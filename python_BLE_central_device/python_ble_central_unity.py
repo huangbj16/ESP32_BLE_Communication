@@ -1,6 +1,7 @@
 import socket
 import asyncio
 from bleak import BleakScanner, BleakClient
+import json
 
 MOTOR_UUID = 'f22535de-5375-44bd-8ca9-d0ea9ff9e419'
 
@@ -10,9 +11,7 @@ async def setMotor(client, socket_conn):
         if not data:
             break
         print('TCP data recv = ', data)
-        motor = int(data.decode('utf-8'))
-        if motor >= 0 and motor < 5:
-            await client.write_gatt_char(MOTOR_UUID,  int.to_bytes(motor, 2, 'little'))
+        await client.write_gatt_char(MOTOR_UUID,  data)
 
 async def main(socket_conn):
     devices = await BleakScanner.discover()

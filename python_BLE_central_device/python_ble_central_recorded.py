@@ -5,7 +5,7 @@ import time
 
 MOTOR_UUID = 'f22535de-5375-44bd-8ca9-d0ea9ff9e419'
 
-file_commands = 'commands_generated.json'
+file_commands = 'commands_unit_test_stroke.json'
 
 current_time = 0
 
