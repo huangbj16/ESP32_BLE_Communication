@@ -20,23 +20,65 @@ bool deviceConnected = false;
  
 Adafruit_NeoPixel strip(1, 0 , NEO_GRB + NEO_KHZ800);
 
-//const int subchain_pins[6] = {26,25,5,19,21,14,32,15,33,27,12,13};//26 and 25 does not have board connection yet. need to remove 7 and 8 
-const int subchain_pins[6] = {26,25,5,19,21,14};//26 and 25 does not have board connection yet. need to remove 7 and 8 
+//const int subchain_pins[6] = {26,25,5,19,21,14,32,15,33,27,12,13};
+const int subchain_pins[6] = {26,25,5,19,21,14};
 const int subchain_num = 6;  
 uint32_t colors[5];
 int color_num = 5;
 
 EspSoftwareSerial::UART serial_group[12];
 
+const int maxJsonCount = 7; // Maximum number of JSON objects you expect
+/*
+ * this function takes in a String that contains multiple JSONs, split them by '\n', and return the String array
+ */
+String* splitJsons(const String& jsonString) {
+  String* jsonArray = new String[maxJsonCount];
+  int startIndex = 0;
+  int endIndex = 0;
+  int jsonCount = 0; // Counter for the number of JSON objects found
+  
+  while (startIndex < jsonString.length()) {
+    // Find the end index of the JSON object
+    endIndex = jsonString.indexOf('\n', startIndex);
+    if (endIndex == -1) {
+      endIndex = jsonString.length();
+    }
+    
+    // Extract the JSON object and store it in the array
+    String json = jsonString.substring(startIndex, endIndex);
+    jsonArray[jsonCount] = json;
+    
+    // Move to the next JSON object
+    jsonCount++;
+    startIndex = endIndex + 1;
+    
+    // Break if the maximum number of JSON objects has been reached
+    if (jsonCount >= maxJsonCount) {
+      break;
+    }
+  }
+
+  return jsonArray;
+}
+
 class MyCharacteristicCallbacks: public BLECharacteristicCallbacks {
     void onWrite(BLECharacteristic *pCharacteristic) {
         // get command
         std::string value = pCharacteristic->getValue();
-        Serial.println(value.c_str());
-        // decode JSON
-        DynamicJsonDocument command(1024);
-        deserializeJson(command, value);
-        sendCommand(command);
+        String value_str = value.c_str();
+//        Serial.println(value_str);
+        // split the receive data into JSONs
+        String* jsonArray = splitJsons(value_str);
+        // decode JSON  
+        for (int i = 0; i < maxJsonCount; i++) {
+            if (!jsonArray[i].isEmpty()) {
+                Serial.println(jsonArray[i]);
+                DynamicJsonDocument command(1024);
+                deserializeJson(command, jsonArray[i]);
+                sendCommand(command);
+            }
+        }
     }
 
     /* command format
