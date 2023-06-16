@@ -5,9 +5,7 @@ import time
 
 MOTOR_UUID = 'f22535de-5375-44bd-8ca9-d0ea9ff9e410'
 
-file_commands = 'commands_max.json'
-
-current_time = 0
+file_commands = 'commands_quick_stroke.json'
 
 # async def setMotor(client):
 #     while True:
@@ -25,12 +23,13 @@ current_time = 0
 #         await client.write_gatt_char(MOTOR_UUID,  output)
 
 async def sendCommands(client):
-    global current_time
     with open(file_commands) as f:
         commands = f.readlines()
         output_string = ''
         command_idx = 0
+        time_offset = time.perf_counter() # record the starting time
         while command_idx < len(commands):
+            # collect commands that are at the same time and form the output
             output_string = commands[command_idx]
             command_parsed = json.loads(commands[command_idx])
             ts = float(command_parsed['time'])
@@ -49,16 +48,20 @@ async def sendCommands(client):
                         break
                 else:
                     break
-            if ts > (current_time + 1e-6):
-                print('wait for ', ts-current_time)
-                await asyncio.sleep(ts-current_time)
-            current_time = ts
-            print('commands = \n', output_string)
+            # wait for the send time
+            print('command time = ', ts)
+            start = time.perf_counter()
+            # await asyncio.sleep(ts-current_time)
+            while (time.perf_counter()-time_offset) < ts:
+                pass
+            actual_sleep_duration = time.perf_counter() - start
+            print(f"{start}, Actual sleep duration: {actual_sleep_duration} seconds")
+            # print('commands = \n', output_string)
             output = bytearray(output_string, 'utf-8')
-            print('command len = ', len(output))
-            print(time.time_ns()/(10**9))
+            # print('command len = ', len(output))
+            print(time.perf_counter())
             await client.write_gatt_char(MOTOR_UUID,  output)
-            print(time.time_ns()/(10**9))
+            print(time.perf_counter())
             
 
 async def main():
