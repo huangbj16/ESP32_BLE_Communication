@@ -16,6 +16,9 @@
 
 #define SERVICE_UUID        "f10016f6-542b-460a-ac8b-bbb0b2010597"
 #define CHARACTERISTIC_UUID "f22535de-5375-44bd-8ca9-d0ea9ff9e410"
+#define CURRENTSENSING_UUID "640b8bf5-3c88-44f6-95e0-f5813b390d78"
+BLECharacteristic *csCharacteristic;
+
 bool deviceConnected = false;
  
 Adafruit_NeoPixel strip(1, 0 , NEO_GRB + NEO_KHZ800);
@@ -177,10 +180,16 @@ void setup() {
                                          BLECharacteristic::PROPERTY_READ |
                                          BLECharacteristic::PROPERTY_WRITE
                                        );
-
   pCharacteristic->setValue("0");
   pCharacteristic->setCallbacks(new MyCharacteristicCallbacks());
+  csCharacteristic = pService->createCharacteristic(
+                                         CURRENTSENSING_UUID,
+                                         BLECharacteristic::PROPERTY_READ
+                                        );
+  csCharacteristic->setValue("0");
+
   pService->start();
+  
   // BLEAdvertising *pAdvertising = pServer->getAdvertising();  // this still is working for backward compatibility
   BLEAdvertising *pAdvertising = BLEDevice::getAdvertising();
   pAdvertising->addServiceUUID(SERVICE_UUID);
@@ -195,9 +204,11 @@ void setup() {
 //    pinMode(subchain_pins[i], OUTPUT);
 //    digitalWrite(subchain_pins[i], LOW);
 //  }
+   pinMode(39, INPUT);
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
-  delay(1000);
+  csCharacteristic->setValue(String(analogRead(39)).c_str());
+  delay(100);
 }
