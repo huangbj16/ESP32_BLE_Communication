@@ -103,12 +103,12 @@ class MyCharacteristicCallbacks: public BLECharacteristicCallbacks {
         if(is_start == 1){//start command, two bytes
           uint8_t message[2];
           message[0] = (motor_addr << 1) + is_start;
-          message[1] = 192 + (duty << 4) + (freq << 2) + wave;
+          message[1] = 128 + (duty << 3) + (freq << 1) + wave;
           serial_group[5].write(message, 2);
           strip.setPixelColor(0, colors[motor_addr % color_num]);
           strip.show();
         }
-        else{//stop command, only one byte
+        else{//stop command, only one byte 
           uint8_t message = (motor_addr << 1) + is_start;
           serial_group[5].write(message);
           strip.setPixelColor(0, 0, 0, 0);

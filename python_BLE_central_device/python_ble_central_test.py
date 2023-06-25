@@ -7,15 +7,14 @@ MOTOR_UUID = 'f22535de-5375-44bd-8ca9-d0ea9ff9e410'
 async def setMotor(client):
     while True:
         motor_addr = int(input('what is the next motor you want to control?'))
-        duty = int(input('duty?'))
+        duty = int(input('0-15 for duty?'))
         start_or_stop = int(input('1 for start and 0 for stop?'))
-        # duty = int(input('0-3 for duty?'))
         command = {
             'addr':motor_addr,
             'mode':start_or_stop,
             'duty':duty, # default
             'freq':2, # default
-            'wave':1, # default
+            'wave':0, # default
         }
         output = bytearray(json.dumps(command), 'utf-8')
         print(output)
