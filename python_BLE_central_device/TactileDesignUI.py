@@ -204,8 +204,6 @@ class DrawingWidget(QWidget):
                     file.write("\n")
 
 
-
-
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()

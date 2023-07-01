@@ -10,12 +10,12 @@ current_zero = 0
 
 async def setMotor(client):
     global current_zero
-    # data format
+    # data format for the power converter
     command = {
         'addr':0,
         'mode':1,
-        'duty':3, # default
-        'freq':2, # default
+        'duty':15, # default
+        'freq':3, # default
         'wave':1, # default
     }
     # turn on the converter
@@ -23,6 +23,13 @@ async def setMotor(client):
     print(output)
     await client.write_gatt_char(MOTOR_UUID,  output)
     # start to test individual motors
+    command = {
+        'addr':0,
+        'mode':1,
+        'duty':15, # default
+        'freq':2, # default
+        'wave':0, # default
+    }
     for i in range(1, MOTOR_NUM+1):
         command['addr'] = i
         command['mode'] = 1 # start
