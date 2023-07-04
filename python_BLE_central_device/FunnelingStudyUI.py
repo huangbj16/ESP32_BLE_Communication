@@ -1,12 +1,15 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QVBoxLayout, QWidget, QAction, QFileDialog, QToolBar
 from PyQt5.QtGui import QPainter, QPen, QColor
-from PyQt5.QtCore import Qt, QPoint
+from PyQt5.QtCore import Qt, QPoint, pyqtSignal
 import json
 import numpy as np
 import re
+import asyncio
+from BluetoothCommandThread import BluetoothCommandThread
 
 class DrawingWidget(QWidget):
+
     def __init__(self):
         super().__init__()
         self.setMouseTracking(True)
@@ -56,6 +59,8 @@ class DrawingWidget(QWidget):
     
 
 class MainWindow(QMainWindow):
+    bluetooth_signal = pyqtSignal(str)
+
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Drawing Application")
@@ -94,7 +99,7 @@ class MainWindow(QMainWindow):
                     commands = []
                     for command_str in command_strs:
                         print(command_str)
-                        commands.append(json.loads(command_str))
+                        commands.append(command_str)
                     self.experiment_commands.append(commands)
             print("new experiment file loaded, data num = ", self.experiment_round_total)
     
@@ -152,6 +157,9 @@ class MainWindow(QMainWindow):
                 print("send command for ", self.current_round)
                 self.isStart = True
                 # Trigger Bluetooth command
+                print(self.experiment_commands[self.current_round])
+                commands = '\n'.join(self.experiment_commands[self.current_round])
+                self.bluetooth_signal.emit(commands)
                 self.start_button.setText("Play Again")
             else:
                 print("test finished!")
@@ -163,6 +171,7 @@ class MainWindow(QMainWindow):
         print("Confirm button clicked")
         # save the drawing to results
         if self.isStart:
+            print("Data saved")
             self.drawing_paths.append(self.drawing_widget.render_paths.copy())
             self.drawing_times.append(self.drawing_widget.render_times.copy())
             # print(self.drawing_paths)
@@ -177,9 +186,20 @@ class MainWindow(QMainWindow):
         # call the function to clean current drawings
         self.drawing_widget.clearDrawing()
 
-
-if __name__ == "__main__":
+# Main function
+def main():
     app = QApplication(sys.argv)
     window = MainWindow()
     window.show()
+
+    # Create and start the Bluetooth thread
+    loop = asyncio.get_event_loop()
+    bluetooth_thread = BluetoothCommandThread(loop)
+    window.bluetooth_signal.connect(bluetooth_thread.bluetooth_callback)
+    bluetooth_thread.start()
+
     sys.exit(app.exec_())
+
+# Run the main function
+if __name__ == "__main__":
+    main()

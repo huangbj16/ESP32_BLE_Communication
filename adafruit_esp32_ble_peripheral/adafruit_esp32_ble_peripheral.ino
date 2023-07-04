@@ -70,7 +70,7 @@ class MyCharacteristicCallbacks: public BLECharacteristicCallbacks {
         // get command
         std::string value = pCharacteristic->getValue();
         String value_str = value.c_str();
-//        Serial.println(value_str);
+        Serial.println(value_str);
         // split the receive data into JSONs
         String* jsonArray = splitJsons(value_str);
         // decode JSON  
