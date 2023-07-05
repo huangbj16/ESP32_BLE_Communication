@@ -155,11 +155,15 @@ class MainWindow(QMainWindow):
         self.clear_button.triggered.connect(self.clearButtonClicked)
         toolbar.addAction(self.clear_button)
 
+        self.message_line = QLabel("message", self)
+        toolbar.addWidget(self.message_line)
+
     def startButtonClicked(self):
         print("Start button clicked")
         if not self.isStart:
             if self.current_round < self.experiment_round_total:
                 print("send command for ", self.current_round)
+                self.message_line.setText('trial #'+str(self.current_round))
                 self.isStart = True
                 ### Trigger Bluetooth command
                 print(self.experiment_commands[self.current_round])
