@@ -4,7 +4,7 @@ import json
 
 CURRENTSENSING_UUID = "640b8bf5-3c88-44f6-95e0-f5813b390d78"
 MOTOR_UUID = 'f22535de-5375-44bd-8ca9-d0ea9ff9e410'
-MOTOR_NUM = 20
+MOTOR_NUM = 10
 
 current_zero = 0
 

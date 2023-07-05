@@ -12,7 +12,7 @@ class BluetoothHandler(QObject):
     async def main(self):
         devices = await BleakScanner.discover()
         for d in devices:
-            print('device name = ', d.name)
+            # print('device name = ', d.name)
             if d.name != None:
                 if d.name == 'FEATHER_ESP32':
                     print('feather device found!!!')

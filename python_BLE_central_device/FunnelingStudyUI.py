@@ -1,7 +1,7 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QVBoxLayout, QWidget, QAction, QFileDialog, QToolBar
-from PyQt5.QtGui import QPainter, QPen, QColor
-from PyQt5.QtCore import Qt, QPoint, pyqtSignal
+from PyQt5.QtGui import QPainter, QPen, QColor, QImage
+from PyQt5.QtCore import Qt, QPoint, pyqtSignal, QSize
 import json
 import numpy as np
 import re
@@ -18,8 +18,11 @@ class DrawingWidget(QWidget):
         self.render_times = []
         self.count = 0
 
+        self.background_image = QImage("data/Picture2.png")
+
     def paintEvent(self, event):
         painter = QPainter(self)
+        painter.drawImage(self.rect(), self.background_image)
         pen = QPen()
         pen.setWidth(2)
         pen.setColor(QColor(0, 0, 0))
@@ -68,7 +71,7 @@ class MainWindow(QMainWindow):
         # initialization
         self.drawing_widget = DrawingWidget()
         self.setCentralWidget(self.drawing_widget)
-        self.resize(800, 600)  # Set the window size
+        self.resize(1600, 900)  # Set the window size
         self.createMenu()
         self.createToolbar()
 
@@ -136,6 +139,8 @@ class MainWindow(QMainWindow):
 
     def createToolbar(self):
         toolbar = QToolBar()
+        toolbar.setFixedHeight(50)  # Set the desired height for the toolbar
+        toolbar.setStyleSheet("QToolButton { min-width: 120px; min-height: 50px}")
         self.addToolBar(toolbar)
 
         self.start_button = QAction("Start", self)
@@ -156,7 +161,7 @@ class MainWindow(QMainWindow):
             if self.current_round < self.experiment_round_total:
                 print("send command for ", self.current_round)
                 self.isStart = True
-                # Trigger Bluetooth command
+                ### Trigger Bluetooth command
                 print(self.experiment_commands[self.current_round])
                 commands = '\n'.join(self.experiment_commands[self.current_round])
                 self.bluetooth_signal.emit(commands)
@@ -192,7 +197,7 @@ def main():
     window = MainWindow()
     window.show()
 
-    # Create and start the Bluetooth thread
+    ### Create and start the Bluetooth thread
     loop = asyncio.get_event_loop()
     bluetooth_thread = BluetoothCommandThread(loop)
     window.bluetooth_signal.connect(bluetooth_thread.bluetooth_callback)
