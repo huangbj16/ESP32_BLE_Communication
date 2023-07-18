@@ -13,51 +13,51 @@ class DrawingWidget(QWidget):
     def __init__(self):
         super().__init__()
         self.setMouseTracking(True)
-        self.drawing = False
-        self.render_paths = []
-        self.render_times = []
-        self.count = 0
+        
+        # click tracker
+        self.isClicked = False
+        self.clickId = -1
+        
+        # initialize the button positions
+        self.button_size = 20
+        self.buttons = []
+        ids = [5, 4, 3, 2, 1, 6, 7, 8, 9, 10, 15, 14, 13, 12, 11, 16, 17, 18, 19, 20]
+        for i in range(4):
+            for j in range(5):
+                pos = QPoint(825+j*153, 100+i*150)
+                id = ids[i*5 + j]
+                self.buttons.append({"pos":pos, "id":id, "isClicked":False})
 
-        self.background_image = QImage("data/Picture2.png")
+        self.background_image = QImage("data/Full_length_background.png")
 
     def paintEvent(self, event):
         painter = QPainter(self)
         painter.drawImage(self.rect(), self.background_image)
         pen = QPen()
         pen.setWidth(2)
-        pen.setColor(QColor(0, 0, 0))
+        pen.setColor(QColor(255, 0, 0))
         painter.setPen(pen)
-        
-        for i in range(self.count):
-            # print(self.render_paths[i][0], self.render_paths[i][-1])
-            for j in range(1, len(self.render_paths[i])):
-                painter.drawEllipse(self.render_paths[i][j - 1], 5, 5)
-                painter.drawLine(self.render_paths[i][j - 1], self.render_paths[i][j])
+
+        for button in self.buttons:
+            painter.drawEllipse(button["pos"], self.button_size, self.button_size)
+            painter.drawText(button["pos"], str(button["id"]))
 
     def mousePressEvent(self, event):
-        if event.button() == Qt.LeftButton:
-            self.drawing = True
-            self.count += 1
-            self.render_paths.append([])
-            self.render_paths[self.count-1].append(event.pos())
-            self.render_times.append([])
-            self.render_times[self.count-1].append(event.timestamp())
+        if not self.isClicked and event.button() == Qt.LeftButton:
+            # check if event.pos() is on any button, if yes, update status
+            print(event.pos())
+            for button in self.buttons:
+                if (button["pos"] - event.pos()).manhattanLength() < self.button_size*2:
+                    self.isClicked = True
+                    self.clickId = self.buttons.index(button)
+                    print("button ", button["id"], " is clicked")
+                    button["isClicked"] = True
+                    self.update()
 
-    def mouseMoveEvent(self, event):
-        if self.drawing and event.buttons() == Qt.LeftButton:
-            self.render_paths[self.count-1].append(event.pos())
-            self.render_times[self.count-1].append(event.timestamp())
-            self.update()
-
-    def mouseReleaseEvent(self, event):
-        if event.button() == Qt.LeftButton:
-            self.drawing = False
-            self.update()
-
-    def clearDrawing(self):
-        self.count = 0
-        self.render_paths.clear()
-        self.render_times.clear()
+    def clearClick(self):
+        self.isClicked = False
+        self.buttons[self.clickId]["isClicked"] = False
+        self.clickId = -1
         self.update()
     
 
@@ -80,8 +80,7 @@ class MainWindow(QMainWindow):
         self.isStart = False
         self.experiment_round_total = 0
         self.experiment_commands = []
-        self.drawing_paths = []
-        self.drawing_times = []
+        self.clicked_button_ids = []
 
 
     '''
@@ -114,15 +113,9 @@ class MainWindow(QMainWindow):
         file_path, _ = file_dialog.getSaveFileName(self, "Save Data to File", "", "JSON Files (*.json)")
         if file_path:
             with open(file_path, "w") as file:
-                for i in range(self.experiment_round_total):
-                    # print(self.drawing_times[i])
-                    # print(self.drawing_paths[i])
-                    for x_time, x_path in zip(self.drawing_times[i], self.drawing_paths[i]):
-                        x_path_tuples = [(point.x(), point.y()) for point in x_path]
-                        data = {"time": x_time, "path": x_path_tuples}
-                        json.dump(data, file)
-                        file.write(' ')
-                    file.write("\n")
+                print(self.clicked_button_ids)
+                for i in range(len(self.clicked_button_ids)):
+                    file.write(str(self.clicked_button_ids[i])+"\n")
             print("save data to file", file_path)
 
     def createMenu(self):
@@ -166,34 +159,38 @@ class MainWindow(QMainWindow):
                 self.message_line.setText('trial #'+str(self.current_round))
                 self.isStart = True
                 ### Trigger Bluetooth command
-                # print(self.experiment_commands[self.current_round])
-                # commands = '\n'.join(self.experiment_commands[self.current_round])
-                # self.bluetooth_signal.emit(commands)
-                # self.start_button.setText("Play Again")
+                print(self.experiment_commands[self.current_round])
+                commands = '\n'.join(self.experiment_commands[self.current_round])
+                self.bluetooth_signal.emit(commands)
+                self.start_button.setText("Play Again")
             else:
                 print("test finished!")
         else:
             print("play again")
             # Only Trigger Bluetooth command
+            commands = '\n'.join(self.experiment_commands[self.current_round])
+            self.bluetooth_signal.emit(commands)
 
     def confirmButtonClicked(self):
         print("Confirm button clicked")
         # save the drawing to results
         if self.isStart:
-            print("Data saved")
-            self.drawing_paths.append(self.drawing_widget.render_paths.copy())
-            self.drawing_times.append(self.drawing_widget.render_times.copy())
-            # print(self.drawing_paths)
-            self.drawing_widget.clearDrawing()
-            # print(self.drawing_paths)
-            self.isStart = False
-            self.current_round += 1
-            self.start_button.setText("Start")
+            if self.drawing_widget.clickId != -1:
+                print("Data saved")
+                self.clicked_button_ids.append(self.drawing_widget.buttons[self.drawing_widget.clickId]["id"])
+                self.drawing_widget.clearClick()
+                self.isStart = False
+                self.current_round += 1
+                self.start_button.setText("Start")
+            else:
+                print("no button is clicked!")
+        else:
+            print("trial is not started yet!")
 
     def clearButtonClicked(self):
         print("Clear button clicked")
         # call the function to clean current drawings
-        self.drawing_widget.clearDrawing()
+        self.drawing_widget.clearClick()
 
 # Main function
 def main():
@@ -202,10 +199,10 @@ def main():
     window.show()
 
     ### Create and start the Bluetooth thread
-    # loop = asyncio.get_event_loop()
-    # bluetooth_thread = BluetoothCommandThread(loop)
-    # window.bluetooth_signal.connect(bluetooth_thread.bluetooth_callback)
-    # bluetooth_thread.start()
+    loop = asyncio.get_event_loop()
+    bluetooth_thread = BluetoothCommandThread(loop)
+    window.bluetooth_signal.connect(bluetooth_thread.bluetooth_callback)
+    bluetooth_thread.start()
 
     sys.exit(app.exec_())
 

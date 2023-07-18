@@ -88,9 +88,9 @@ commands = []
 ### funneling study one motor condition
 
 start_time = 0.0
-duration = 0.4
+duration = 0.5
 vib_step = 1.0
-motor_num = 9
+motor_num = 20
 for i in range(1, motor_num+1):
     commands.append({"time":0, "addr":0, "mode":1, "duty":15, "freq":3, "wave":1})
     commands.append({"time":round(start_time+vib_step, 2), "addr":i, "mode":1, "duty":15, "freq":2, "wave":0})
@@ -131,7 +131,7 @@ for i in range(1, motor_num+1):
 # commands.sort(key=lambda x: x['addr'])
 # commands.sort(key=lambda x: x['time'])
 
-file_path = 'commands/Funneling_one_motor.json'
+file_path = 'commands/InfoTransfer_one_motor.json'
 with open(file_path, "w") as file:
     counter = 0
     for command in commands:

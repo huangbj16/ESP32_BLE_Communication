@@ -20,8 +20,8 @@ def repeat_and_shuffle(file_path, repeat_count, shuffle=True):
     print(f"Shuffled data has been saved to '{new_file_path}'.")
 
 # Example usage
-file_path = 'commands/Funneling_Experiment.json'  # Path to the input file
+file_path = 'commands/InfoTransfer_one_motor.json'  # Path to the input file
 repeat_count = 5      # Number of times to repeat each line
-shuffle_data = True     # Whether to shuffle the data order
+shuffle_data = True    # Whether to shuffle the data order
 
 repeat_and_shuffle(file_path, repeat_count, shuffle_data)

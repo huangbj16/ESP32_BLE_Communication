@@ -4,7 +4,7 @@ import json
 
 CURRENTSENSING_UUID = "640b8bf5-3c88-44f6-95e0-f5813b390d78"
 MOTOR_UUID = 'f22535de-5375-44bd-8ca9-d0ea9ff9e410'
-MOTOR_NUM = 10
+MOTOR_NUM = 20
 
 current_zero = 0
 
@@ -50,6 +50,18 @@ async def setMotor(client):
         # print(output)
         await client.write_gatt_char(MOTOR_UUID,  output)
         await asyncio.sleep(0.2)
+    
+    command = {
+        'addr':0,
+        'mode':0,
+        'duty':15, # default
+        'freq':3, # default
+        'wave':1, # default
+    }
+    # turn on the converter
+    output = bytearray(json.dumps(command), 'utf-8')
+    print(output)
+    await client.write_gatt_char(MOTOR_UUID,  output)
 
 
 async def main():

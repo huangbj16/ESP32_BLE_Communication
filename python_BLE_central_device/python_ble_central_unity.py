@@ -30,11 +30,18 @@ async def main(socket_conn):
 HOST = "127.0.0.1"  # Standard loopback interface address (localhost)
 PORT = 9051  # Port to listen on (non-privileged ports are > 1023)
 
-with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-    s.bind((HOST, PORT))
-    print('python server start listening')
-    s.listen()
-    conn, addr = s.accept()
-    with conn:
-        print(f"TCP socket connected by {addr}")
-        asyncio.run(main(conn))
+while True:
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.bind((HOST, PORT))
+        print('python server start listening')
+        s.listen()
+        conn, addr = s.accept()
+        with conn:
+            print(f"TCP socket connected by {addr}")
+            while True:
+                data = conn.recv(1024)
+                print('TCP data recv = ', data)
+                if not data:
+                    break
+            # asyncio.run(main(conn))
+    print('TCP socket disconnected! restart now...')
