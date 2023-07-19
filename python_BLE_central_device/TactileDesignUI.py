@@ -158,7 +158,7 @@ class DrawingWidget(QWidget):
                 # can either be rounded to choose the closest point, or use linear interpolation.
                 point = render_path[round(point_indices[i])]
                 motor_idx = self.findNearestMotor(point)
-                commands.append({"time":round(time_lapses[i], 1), "addr":motor_idx+1, "mode":1, "duty":15, "freq":2, "wave":1}) # motor starts from 1
+                commands.append({"time":round(time_lapses[i], 1), "addr":motor_idx+1, "mode":1, "duty":15, "freq":2, "wave":0}) # motor starts from 1
         
         # remove redundant commands and add stop commands.
         commands.sort(key=lambda x: x['time'])
@@ -177,23 +177,23 @@ class DrawingWidget(QWidget):
                         if (command['time']-last_vib_time) < between_command_lapse+1e-6:
                             last_vib_time = command['time']
                         else: # should add a stop command
-                            stop_command = {"time":round(last_vib_time+between_command_lapse, 1), "addr":command['addr'], "mode":0, "duty":15, "freq":2, "wave":1}
+                            stop_command = {"time":round(last_vib_time+between_command_lapse, 1), "addr":command['addr'], "mode":0, "duty":15, "freq":2, "wave":0}
                             new_commands.append(stop_command)
                             new_commands.append(command)
                             last_vib_time = command['time']
             if isTriggered:
-                stop_command = {"time":round(last_vib_time+between_command_lapse, 1), "addr":i+1, "mode":0, "duty":15, "freq":2, "wave":1}
+                stop_command = {"time":round(last_vib_time+between_command_lapse, 1), "addr":i+1, "mode":0, "duty":15, "freq":2, "wave":0}
                 new_commands.append(stop_command)
         
         # power converter start command
-        new_commands.append({"time":0, "addr":0, "mode":1, "duty":15, "freq":2, "wave":1})
+        new_commands.append({"time":0, "addr":0, "mode":1, "duty":15, "freq":3, "wave":1})
 
         new_commands.sort(key=lambda x: x['addr'])
         new_commands.sort(key=lambda x: x['time'])
 
         # power converter stop command
         last_vib_time = new_commands[-1]['time']
-        new_commands.append({"time":last_vib_time+1, "addr":0, "mode":0, "duty":15, "freq":2, "wave":1})
+        new_commands.append({"time":last_vib_time+1, "addr":0, "mode":0, "duty":15, "freq":3, "wave":1})
 
         file_dialog = QFileDialog()
         file_path, _ = file_dialog.getSaveFileName(self, "Export Commands", "", "JSON Files (*.json)")
@@ -212,7 +212,7 @@ class MainWindow(QMainWindow):
         self.drawing_widget = DrawingWidget()
         self.setCentralWidget(self.drawing_widget)
 
-        self.resize(1100, 300)  # Set the window size
+        self.resize(1200, 600)  # Set the window size
         self.createMenu()
 
     def createMenu(self):

@@ -1,6 +1,6 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QVBoxLayout, QWidget, QAction, QFileDialog, QToolBar
-from PyQt5.QtGui import QPainter, QPen, QColor, QImage
+from PyQt5.QtGui import QPainter, QPen, QColor, QImage, QBrush
 from PyQt5.QtCore import Qt, QPoint, pyqtSignal, QSize
 import json
 import numpy as np
@@ -21,10 +21,14 @@ class DrawingWidget(QWidget):
         # initialize the button positions
         self.button_size = 20
         self.buttons = []
-        ids = [5, 4, 3, 2, 1, 6, 7, 8, 9, 10, 15, 14, 13, 12, 11, 16, 17, 18, 19, 20]
+        # ids = [5, 4, 3, 2, 1, 6, 7, 8, 9, 10, 15, 14, 13, 12, 11, 16, 17, 18, 19, 20]
+        ids = [9, 7, 5, 3, 1, 11, 13, 15, 17, 19, 29, 27, 25, 23, 21, 31, 33, 35, 37, 39]
         for i in range(4):
             for j in range(5):
-                pos = QPoint(825+j*153, 100+i*150)
+                if (i % 2) == 0:
+                    pos = QPoint(213+j*306, 100+i*150)
+                else:
+                    pos = QPoint(60+j*306, 100+i*150)
                 id = ids[i*5 + j]
                 self.buttons.append({"pos":pos, "id":id, "isClicked":False})
 
@@ -33,14 +37,22 @@ class DrawingWidget(QWidget):
     def paintEvent(self, event):
         painter = QPainter(self)
         painter.drawImage(self.rect(), self.background_image)
+        brush = QBrush(Qt.red) 
         pen = QPen()
         pen.setWidth(2)
         pen.setColor(QColor(255, 0, 0))
         painter.setPen(pen)
 
         for button in self.buttons:
-            painter.drawEllipse(button["pos"], self.button_size, self.button_size)
-            painter.drawText(button["pos"], str(button["id"]))
+            if not button["isClicked"]:
+                painter.setBrush(Qt.NoBrush)
+                painter.drawEllipse(button["pos"], self.button_size, self.button_size)
+                painter.drawText(button["pos"], str(button["id"]))
+            else: # clicked button, add color fill
+                painter.setBrush(brush)
+                painter.drawEllipse(button["pos"], self.button_size, self.button_size)
+                painter.drawText(button["pos"], str(button["id"]))
+
 
     def mousePressEvent(self, event):
         if not self.isClicked and event.button() == Qt.LeftButton:
@@ -159,10 +171,10 @@ class MainWindow(QMainWindow):
                 self.message_line.setText('trial #'+str(self.current_round))
                 self.isStart = True
                 ### Trigger Bluetooth command
-                print(self.experiment_commands[self.current_round])
-                commands = '\n'.join(self.experiment_commands[self.current_round])
-                self.bluetooth_signal.emit(commands)
-                self.start_button.setText("Play Again")
+                # print(self.experiment_commands[self.current_round])
+                # commands = '\n'.join(self.experiment_commands[self.current_round])
+                # self.bluetooth_signal.emit(commands)
+                # self.start_button.setText("Play Again")
             else:
                 print("test finished!")
         else:
@@ -199,10 +211,10 @@ def main():
     window.show()
 
     ### Create and start the Bluetooth thread
-    loop = asyncio.get_event_loop()
-    bluetooth_thread = BluetoothCommandThread(loop)
-    window.bluetooth_signal.connect(bluetooth_thread.bluetooth_callback)
-    bluetooth_thread.start()
+    # loop = asyncio.get_event_loop()
+    # bluetooth_thread = BluetoothCommandThread(loop)
+    # window.bluetooth_signal.connect(bluetooth_thread.bluetooth_callback)
+    # bluetooth_thread.start()
 
     sys.exit(app.exec_())
 

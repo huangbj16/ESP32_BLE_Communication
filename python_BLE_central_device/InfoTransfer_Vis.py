@@ -10,7 +10,7 @@ data_array = []
 
 # read stimuli file
 
-file_path = "data/InfoTransfer_one_motor_shuffle_100.json"
+file_path = "data/InfoTransfer_one_motor_skip_shuffle_100.json"
 
 with open(file_path, "r") as file:
     lines = file.readlines()
@@ -23,7 +23,7 @@ with open(file_path, "r") as file:
         stimuli_array.append(id)
 
 # read data file
-file_path = "data/data_bingjian_IT_20230718.json"
+file_path = "data/data_bingjian_IT_skip_20230718_2.json"
 
 with open(file_path, "r") as file:
     lines = file.readlines()
@@ -38,11 +38,11 @@ stimuli_array = np.array(stimuli_array)
 data_array = np.array(data_array)
 category_num = 20
 repeat_num = 5
-# count_array = np.zeros((category_num), dtype=np.float32)
+count_array = np.zeros((category_num), dtype=np.float32)
 
-# for i in range(experiment_round_total):
-#     if stimuli_array[i] == data_array[i]:
-#         count_array[stimuli_array[i]-1] += 1 # from 1-20 to 0-19
+for i in range(experiment_round_total):
+    if stimuli_array[i] == data_array[i]:
+        count_array[(stimuli_array[i]>>1)] += 1 # from 1-39 to 0-19
 
 # count_array /= repeat_num
 
@@ -51,14 +51,16 @@ repeat_num = 5
 # num_minus = np.count_nonzero(data_array == -1)
 # num_plus = np.count_nonzero(data_array == 1)
 # print(num_zeros, num_minus, num_plus, np.sum(count_array))
+print(np.sum(count_array))
 
-# plt.plot(count_array)
-# plt.show()
+plt.plot(count_array)
+plt.show()
 
 ### calculate information transfer
 
-stimuli_array -= 1
-data_array -= 1
+stimuli_array = stimuli_array>>1
+data_array = data_array>>1
+print(data_array)
 
 from scipy.stats import entropy
 
