@@ -10,13 +10,15 @@ from BluetoothCommandThread import BluetoothCommandThread
 
 class DrawingWidget(QWidget):
 
-    def __init__(self):
+    def __init__(self, mainWindow):
         super().__init__()
         self.setMouseTracking(True)
+        self.mainWindow = mainWindow
         
         # click tracker
         self.isClicked = False
         self.clickId = -1
+        self.isPractice = True
         
         # initialize the button positions
         self.button_size = 20
@@ -65,6 +67,9 @@ class DrawingWidget(QWidget):
                     print("button ", button["id"], " is clicked")
                     button["isClicked"] = True
                     self.update()
+                    if self.isPractice:
+                        print("trigger motor")
+                        self.mainWindow.triggerPracticeMotor(button["id"])
 
     def clearClick(self):
         self.isClicked = False
@@ -81,7 +86,7 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Drawing Application")
 
         # initialization
-        self.drawing_widget = DrawingWidget()
+        self.drawing_widget = DrawingWidget(self)
         self.setCentralWidget(self.drawing_widget)
         self.resize(1600, 900)  # Set the window size
         self.createMenu()
@@ -160,8 +165,16 @@ class MainWindow(QMainWindow):
         self.clear_button.triggered.connect(self.clearButtonClicked)
         toolbar.addAction(self.clear_button)
 
+        self.toggle_mode_button = QAction("Practice Mode", self)
+        self.toggle_mode_button.triggered.connect(self.toggleButtonClicked)
+        toolbar.addAction(self.toggle_mode_button)
+        self.isPractice = True
+
         self.message_line = QLabel("message", self)
+        background_color = QColor(200, 200, 200)  # Light blue color (RGB: 200, 200, 255)
+        self.message_line.setStyleSheet(f'background-color: {background_color.name()};')
         toolbar.addWidget(self.message_line)
+
 
     def startButtonClicked(self):
         print("Start button clicked")
@@ -171,10 +184,10 @@ class MainWindow(QMainWindow):
                 self.message_line.setText('trial #'+str(self.current_round))
                 self.isStart = True
                 ### Trigger Bluetooth command
-                # print(self.experiment_commands[self.current_round])
-                # commands = '\n'.join(self.experiment_commands[self.current_round])
-                # self.bluetooth_signal.emit(commands)
-                # self.start_button.setText("Play Again")
+                print(self.experiment_commands[self.current_round])
+                commands = '\n'.join(self.experiment_commands[self.current_round])
+                self.bluetooth_signal.emit(commands)
+                self.start_button.setText("Play Again")
             else:
                 print("test finished!")
         else:
@@ -204,6 +217,28 @@ class MainWindow(QMainWindow):
         # call the function to clean current drawings
         self.drawing_widget.clearClick()
 
+    def toggleButtonClicked(self):
+        if self.isPractice:
+            self.isPractice = False
+            self.drawing_widget.isPractice = False
+            self.toggle_mode_button.setText("Testing Mode")
+            print("toggle mode to testing")
+        else:
+            self.isPractice = True
+            self.drawing_widget.isPractice = True
+            self.toggle_mode_button.setText("Practice Mode")
+            print("toggle mode to practice")
+
+    def triggerPracticeMotor(self, motor_id): # serving function for practice mode
+        # print("trigger ", motor_id)
+        for command in self.experiment_commands:
+            command_json = json.loads(command[1])
+            # print(command_json["addr"])
+            if command_json["addr"] == motor_id:
+                commands = '\n'.join(command)
+                self.bluetooth_signal.emit(commands)
+                break
+
 # Main function
 def main():
     app = QApplication(sys.argv)
@@ -211,10 +246,10 @@ def main():
     window.show()
 
     ### Create and start the Bluetooth thread
-    # loop = asyncio.get_event_loop()
-    # bluetooth_thread = BluetoothCommandThread(loop)
-    # window.bluetooth_signal.connect(bluetooth_thread.bluetooth_callback)
-    # bluetooth_thread.start()
+    loop = asyncio.get_event_loop()
+    bluetooth_thread = BluetoothCommandThread(loop)
+    window.bluetooth_signal.connect(bluetooth_thread.bluetooth_callback)
+    bluetooth_thread.start()
 
     sys.exit(app.exec_())
 
