@@ -132,7 +132,7 @@ class MainWindow(QMainWindow):
             with open(file_path, "w") as file:
                 print(self.clicked_button_ids)
                 for i in range(len(self.clicked_button_ids)):
-                    file.write(str(self.clicked_button_ids[i])+"\n")
+                    file.write(json.dumps(self.clicked_button_ids[i])+"\n")
             print("save data to file", file_path)
 
     def createMenu(self):
@@ -164,6 +164,11 @@ class MainWindow(QMainWindow):
         self.clear_button = QAction("Clear", self)
         self.clear_button.triggered.connect(self.clearButtonClicked)
         toolbar.addAction(self.clear_button)
+
+        self.intensity_button = QAction("low intensity", self)
+        self.intensity_button.triggered.connect(self.intensityButtonClicked)
+        toolbar.addAction(self.intensity_button)
+        self.isLowIntensity = True
 
         self.toggle_mode_button = QAction("Practice Mode", self)
         self.toggle_mode_button.triggered.connect(self.toggleButtonClicked)
@@ -202,7 +207,7 @@ class MainWindow(QMainWindow):
         if self.isStart:
             if self.drawing_widget.clickId != -1:
                 print("Data saved")
-                self.clicked_button_ids.append(self.drawing_widget.buttons[self.drawing_widget.clickId]["id"])
+                self.clicked_button_ids.append({"id":self.drawing_widget.buttons[self.drawing_widget.clickId]["id"], "low_intensity":self.isLowIntensity})
                 self.drawing_widget.clearClick()
                 self.isStart = False
                 self.current_round += 1
@@ -229,12 +234,24 @@ class MainWindow(QMainWindow):
             self.toggle_mode_button.setText("Practice Mode")
             print("toggle mode to practice")
 
+    def intensityButtonClicked(self):
+        if self.isLowIntensity:
+            self.isLowIntensity = False
+            self.intensity_button.setText("high intensity")
+        else:
+            self.isLowIntensity = True
+            self.intensity_button.setText("low intensity")
+
     def triggerPracticeMotor(self, motor_id): # serving function for practice mode
         # print("trigger ", motor_id)
         for command in self.experiment_commands:
             command_json = json.loads(command[1])
             # print(command_json["addr"])
-            if command_json["addr"] == motor_id:
+            if self.isLowIntensity:
+                intensity_level = 3
+            else:
+                intensity_level = 15
+            if command_json["addr"] == motor_id and command_json["duty"] == intensity_level:
                 commands = '\n'.join(command)
                 self.bluetooth_signal.emit(commands)
                 break
