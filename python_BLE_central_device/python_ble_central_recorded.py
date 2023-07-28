@@ -5,7 +5,14 @@ import time
 
 MOTOR_UUID = 'f22535de-5375-44bd-8ca9-d0ea9ff9e410'
 
-file_commands = 'commands/commands_side_center.json'
+file_commands = 'commands/commands_phantom_gaussian_2cm.json'
+
+'''
+commands_side_center.json
+commands_linear_stroke.json
+commands_vertical_stroke.json
+commands_cross_pattern.json
+'''
 
 # async def setMotor(client):
 #     while True:

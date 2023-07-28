@@ -4,7 +4,7 @@ import json
 
 CURRENTSENSING_UUID = "640b8bf5-3c88-44f6-95e0-f5813b390d78"
 MOTOR_UUID = 'f22535de-5375-44bd-8ca9-d0ea9ff9e410'
-MOTOR_NUM = 20
+MOTOR_NUM = 40
 
 current_zero = 0
 
@@ -31,7 +31,7 @@ async def setMotor(client):
         'wave':0, # default
     }
     for i in range(1, MOTOR_NUM+1):
-        command['addr'] = 2*i-1 # for testing the odd number motors
+        command['addr'] = i # for testing the odd number motors
         command['mode'] = 1 # start
         output = bytearray(json.dumps(command), 'utf-8')
         # print(output)
@@ -41,9 +41,9 @@ async def setMotor(client):
         val = await client.read_gatt_char(CURRENTSENSING_UUID)
         res = int(val)
         if res >= (current_zero + 30):
-            print(f'Motor # {2*i-1} is ON, current = {res}')
+            print(f'Motor # {i} is ON, current = {res}')
         else:
-            print(f'Motor # {2*i-1} is OFF, current = {res}')
+            print(f'Motor # {i} is OFF, current = {res}')
         
         command['mode'] = 0 # stop
         output = bytearray(json.dumps(command), 'utf-8')

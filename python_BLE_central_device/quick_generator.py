@@ -56,7 +56,7 @@ commands = []
 ### linear phantom sensation
 
 # start_time = 1.0
-# intensity_level = 8
+# intensity_level = 15
 # duration = 0.1
 # motor_num = 5
 # for i in range(1, motor_num+1):
@@ -70,6 +70,89 @@ commands = []
 
 # commands.append({"time":0, "addr":0, "mode":1, "duty":15, "freq":3, "wave":1})
 # commands.append({"time":start_time+duration*intensity_level*motor_num+3.0, "addr":0, "mode":0, "duty":15, "freq":3, "wave":1})
+
+### phantom 2cm
+start_time = 1.0
+vib_duration = 0.5
+duty_num = 15
+motor_num = 5
+motor_addrs = [3, 4, 5, 6, 7]
+
+### phantom 4cm
+# start_time = 1.0
+# vib_duration = 1.0
+# duty_num = 15
+# motor_num = 3
+# motor_addrs = [15, 17, 19]
+
+### phantom 8cm
+# start_time = 1.0
+# vib_duration = 2.0
+# duty_num = 15
+# motor_num = 2
+# motor_addrs = [15, 19]
+
+for i in range(motor_num):
+    timestamps_up = np.linspace(start_time+i*vib_duration, start_time+(i+1)*vib_duration, duty_num, endpoint=False)
+    timestamps_down = np.linspace(start_time+(i+1)*vib_duration, start_time+(i+2)*vib_duration, duty_num, endpoint=False)
+    for j in range(duty_num):
+        commands.append({"time":round(timestamps_up[j], 2), "addr":motor_addrs[i], "mode":1, "duty":j, "freq":2, "wave":0})
+    for j in range(duty_num):
+        commands.append({"time":round(timestamps_down[j], 2), "addr":motor_addrs[i], "mode":1, "duty":duty_num-j, "freq":2, "wave":0})
+    commands.append({"time":start_time+(i+2)*vib_duration, "addr":motor_addrs[i], "mode":0, "duty":0, "freq":2, "wave":0})
+    
+commands.append({"time":0, "addr":0, "mode":1, "duty":15, "freq":3, "wave":1})
+commands.append({"time":start_time+vib_duration*(motor_num+1)+2.0, "addr":0, "mode":0, "duty":15, "freq":3, "wave":1})
+
+### phantom gaussian
+
+# from scipy.stats import norm
+
+# def gaussian_timestamps(mean, sd, levels):
+#     duty_values = np.arange(1, levels+1, 1, dtype=np.float32)
+#     gaussian = norm(loc=mean, scale=sd)
+#     duty_norms = duty_values*gaussian.pdf(mean)/np.max(duty_values)
+#     x_values = np.arange(mean-3*sd, mean+0.01, step=0.01)
+#     y_values = gaussian.pdf(x_values)
+#     timestamps = np.zeros(levels, dtype=np.float32)
+#     for i in range(levels):
+#         timestamps[i] = x_values[np.argmin(np.abs(y_values-duty_norms[i]))]
+#     print(timestamps)
+#     return timestamps.tolist()
+
+### 2cm
+# start_time = 1.0
+# vib_duration = 0.5
+# duty_num = 15
+# motor_num = 5
+# motor_addrs = [3, 4, 5, 6, 7]
+
+### 4cm
+# start_time = 1.0
+# vib_duration = 1.0
+# duty_num = 15
+# motor_num = 3
+# motor_addrs = [3, 5, 7]
+
+### 8cm
+# start_time = 1.0
+# vib_duration = 2.0
+# duty_num = 15
+# motor_num = 2
+# motor_addrs = [3, 7]
+
+# for i in range(motor_num):
+#     mid_time = start_time+(i+1)*vib_duration
+#     sd = 0.6*vib_duration
+#     timestamps_up = gaussian_timestamps(mid_time, sd, duty_num)
+#     for j in range(duty_num): ## raming up
+#         commands.append({"time":round(timestamps_up[j], 2), "addr":motor_addrs[i], "mode":1, "duty":j+1, "freq":2, "wave":0})
+#     for j in np.arange(duty_num-1, 0, step=-1): ## raming down
+#         commands.append({"time":round(2*mid_time-timestamps_up[j-1], 2), "addr":motor_addrs[i], "mode":1, "duty":int(j), "freq":2, "wave":0})
+#     commands.append({"time":round(2*mid_time-timestamps_up[0]+0.1, 2), "addr":motor_addrs[i], "mode":0, "duty":0, "freq":2, "wave":0})
+    
+# commands.append({"time":0, "addr":0, "mode":1, "duty":15, "freq":3, "wave":1})
+# commands.append({"time":start_time+vib_duration*(motor_num+1)+2.0, "addr":0, "mode":0, "duty":15, "freq":3, "wave":1})
 
 ### funneling illusion in experiment format
 
@@ -85,23 +168,33 @@ commands = []
 #     commands.append({"time":round(start_time+vib_step+duration, 2), "addr":2*i+1, "mode":0, "duty":15, "freq":2, "wave":0})
 #     commands.append({"time":start_time+vib_step+3.0, "addr":0, "mode":0, "duty":15, "freq":3, "wave":1})
 
+### funneling study two motor condition
+
+# start_time = 0.0
+# duration = 0.5
+# vib_step = 1.0
+# motor_addr = 5
+# duty_num = 3
+# for i in range(duty_num):
+#     commands.append({"time":0, "addr":0, "mode":1, "duty":(i+1)*5, "freq":3, "wave":1})
+#     commands.append({"time":round(start_time+vib_step, 2), "addr":4, "mode":1, "duty":15, "freq":2, "wave":0})
+#     commands.append({"time":round(start_time+vib_step, 2), "addr":6, "mode":1, "duty":15, "freq":2, "wave":0})
+#     commands.append({"time":round(start_time+vib_step+duration, 2), "addr":4, "mode":0, "duty":15, "freq":2, "wave":0})
+#     commands.append({"time":round(start_time+vib_step+duration, 2), "addr":6, "mode":0, "duty":15, "freq":2, "wave":0})
+#     commands.append({"time":start_time+vib_step+2.0, "addr":0, "mode":0, "duty":(i+1)*5, "freq":3, "wave":1})
+
 ### funneling study one motor condition
 
-start_time = 0.0
-duration = 1.0
-vib_step = 1.0
-motor_num = 20
-for i in range(1, motor_num+1):
-    # intensity 1
-    commands.append({"time":0, "addr":0, "mode":1, "duty":15, "freq":3, "wave":1})
-    commands.append({"time":round(start_time+vib_step, 2), "addr":2*i-1, "mode":1, "duty":15, "freq":2, "wave":0})
-    commands.append({"time":round(start_time+vib_step+duration, 2), "addr":2*i-1, "mode":0, "duty":15, "freq":2, "wave":0})
-    commands.append({"time":start_time+vib_step+2.0, "addr":0, "mode":0, "duty":15, "freq":3, "wave":1})
-    # intensity 2
-    commands.append({"time":0, "addr":0, "mode":1, "duty":15, "freq":3, "wave":1})
-    commands.append({"time":round(start_time+vib_step, 2), "addr":2*i-1, "mode":1, "duty":3, "freq":2, "wave":0})
-    commands.append({"time":round(start_time+vib_step+duration, 2), "addr":2*i-1, "mode":0, "duty":3, "freq":2, "wave":0})
-    commands.append({"time":start_time+vib_step+2.0, "addr":0, "mode":0, "duty":15, "freq":3, "wave":1})
+# start_time = 0.0
+# duration = 0.5
+# vib_step = 1.0
+# duty_num = 3
+# for i in range(duty_num):
+#     # intensity 1
+#     commands.append({"time":0, "addr":0, "mode":1, "duty":(i+1)*5, "freq":3, "wave":1})
+#     commands.append({"time":round(start_time+vib_step, 2), "addr":5, "mode":1, "duty":15, "freq":2, "wave":0})
+#     commands.append({"time":round(start_time+vib_step+duration, 2), "addr":5, "mode":0, "duty":15, "freq":2, "wave":0})
+#     commands.append({"time":start_time+vib_step+2.0, "addr":0, "mode":0, "duty":(i+1)*5, "freq":3, "wave":1})
 
 ### cutaneous rabbit
 
@@ -131,18 +224,40 @@ for i in range(1, motor_num+1):
 #     commands.append({"time":round(start_time+i*vib_step+3.20, 2), "addr":i+2, "mode":0, "duty":15, "freq":2, "wave":0})
     
 
+### phantom sensation outside stimuli
+
+# DutyMax = 15
+# DutyBase = 5
+# dtime = 1.0
+# start_time = 1.0
+# time_step = 0.1
+# step = int(round(dtime / time_step))
+# duty_step = 5/float(step)
+
+# for i in range(2*step):
+#     commands.append({"time":round(start_time+i*time_step, 1), "addr":5, "mode":1, "duty":int(round(DutyBase+duty_step*i)), "freq":2, "wave":0})
+# for i in range(3*step+1):
+#     commands.append({"time":round(start_time+time_step*2*step+i*time_step, 1), "addr":5, "mode":1, "duty":int(round(DutyMax-duty_step*i)), "freq":2, "wave":0})
+# for i in range(3*step):
+#     commands.append({"time":round(start_time+i*time_step, 1), "addr":6, "mode":1, "duty":int(round(duty_step*i)), "freq":2, "wave":0})
+# for i in range(2*step+1):
+#     commands.append({"time":round(start_time+time_step*3*step+i*time_step, 1), "addr":6, "mode":1, "duty":int(round(DutyMax-duty_step*i)), "freq":2, "wave":0})
+
+# commands.append({"time":round(start_time+time_step*5*step+1.0, 1), "addr":5, "mode":0, "duty":15, "freq":2, "wave":0})
+# commands.append({"time":round(start_time+time_step*5*step+1.0, 1), "addr":6, "mode":0, "duty":15, "freq":2, "wave":0})
+
 # commands.append({"time":0, "addr":0, "mode":1, "duty":15, "freq":3, "wave":1})
-# commands.append({"time":start_time+vib_step*motor_num+vib_step+3.0, "addr":0, "mode":0, "duty":15, "freq":3, "wave":1})
+# commands.append({"time":round(start_time+time_step*5*step+2.0, 1), "addr":0, "mode":0, "duty":15, "freq":3, "wave":1})
 
-# commands.sort(key=lambda x: x['addr'])
-# commands.sort(key=lambda x: x['time'])
 
-file_path = 'commands/InfoTransfer_two_intensity_test.json'
+
+commands.sort(key=lambda x: x['addr'])
+commands.sort(key=lambda x: x['time'])
+
+file_path = 'commands/commands_phantom_2cm.json'
 with open(file_path, "w") as file:
     counter = 0
     for command in commands:
         json.dump(command, file)
         counter += 1
-        if counter == 4:
-            file.write("\n")
-            counter = 0
+        file.write("\n")

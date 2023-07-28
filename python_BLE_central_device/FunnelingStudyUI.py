@@ -155,6 +155,8 @@ class MainWindow(QMainWindow):
         self.clear_button.triggered.connect(self.clearButtonClicked)
         toolbar.addAction(self.clear_button)
 
+        
+
         self.message_line = QLabel("message", self)
         toolbar.addWidget(self.message_line)
 
