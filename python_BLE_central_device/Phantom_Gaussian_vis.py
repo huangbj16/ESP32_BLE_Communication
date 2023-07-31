@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from collections import defaultdict
 
 # Read the file
-with open("commands/commands_phantom_gaussian_8cm.json") as f:
+with open("commands/commands_phantom_gaussian_2cm.json") as f:
     lines = f.readlines()
 
 # Convert each line to a JSON object and organize the data

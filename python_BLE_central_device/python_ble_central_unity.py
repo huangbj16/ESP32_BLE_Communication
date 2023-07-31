@@ -24,6 +24,9 @@ async def main(socket_conn):
                     print(f'BLE connected to {d.address}')
                     val = await client.read_gatt_char(MOTOR_UUID)
                     print('Motor read = ', val)
+                    data = bytearray(b'{"addr": 0, "mode": 1, "duty": 1, "freq": 3, "wave": 1}')
+                    print(data)
+                    await client.write_gatt_char(MOTOR_UUID,  data)
                     while True:
                         await setMotor(client, socket_conn)
 
@@ -38,10 +41,10 @@ while True:
         conn, addr = s.accept()
         with conn:
             print(f"TCP socket connected by {addr}")
-            while True:
-                data = conn.recv(1024)
-                print('TCP data recv = ', data)
-                if not data:
-                    break
-            # asyncio.run(main(conn))
+            # while True:
+                # data = conn.recv(1024)
+                # print('TCP data recv = ', data)
+                # if not data:
+                #     break
+            asyncio.run(main(conn))
     print('TCP socket disconnected! restart now...')
