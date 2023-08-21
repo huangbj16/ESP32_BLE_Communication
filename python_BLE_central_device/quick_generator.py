@@ -72,11 +72,11 @@ commands = []
 # commands.append({"time":start_time+duration*intensity_level*motor_num+3.0, "addr":0, "mode":0, "duty":15, "freq":3, "wave":1})
 
 ### phantom 2cm
-start_time = 1.0
-vib_duration = 0.5
-duty_num = 15
-motor_num = 5
-motor_addrs = [3, 4, 5, 6, 7]
+# start_time = 1.0
+# vib_duration = 0.5
+# duty_num = 15
+# motor_num = 5
+# motor_addrs = [3, 4, 5, 6, 7]
 
 ### phantom 4cm
 # start_time = 1.0
@@ -92,17 +92,17 @@ motor_addrs = [3, 4, 5, 6, 7]
 # motor_num = 2
 # motor_addrs = [15, 19]
 
-for i in range(motor_num):
-    timestamps_up = np.linspace(start_time+i*vib_duration, start_time+(i+1)*vib_duration, duty_num, endpoint=False)
-    timestamps_down = np.linspace(start_time+(i+1)*vib_duration, start_time+(i+2)*vib_duration, duty_num, endpoint=False)
-    for j in range(duty_num):
-        commands.append({"time":round(timestamps_up[j], 2), "addr":motor_addrs[i], "mode":1, "duty":j, "freq":2, "wave":0})
-    for j in range(duty_num):
-        commands.append({"time":round(timestamps_down[j], 2), "addr":motor_addrs[i], "mode":1, "duty":duty_num-j, "freq":2, "wave":0})
-    commands.append({"time":start_time+(i+2)*vib_duration, "addr":motor_addrs[i], "mode":0, "duty":0, "freq":2, "wave":0})
+# for i in range(motor_num):
+#     timestamps_up = np.linspace(start_time+i*vib_duration, start_time+(i+1)*vib_duration, duty_num, endpoint=False)
+#     timestamps_down = np.linspace(start_time+(i+1)*vib_duration, start_time+(i+2)*vib_duration, duty_num, endpoint=False)
+#     for j in range(duty_num):
+#         commands.append({"time":round(timestamps_up[j], 2), "addr":motor_addrs[i], "mode":1, "duty":j, "freq":2, "wave":0})
+#     for j in range(duty_num):
+#         commands.append({"time":round(timestamps_down[j], 2), "addr":motor_addrs[i], "mode":1, "duty":duty_num-j, "freq":2, "wave":0})
+#     commands.append({"time":start_time+(i+2)*vib_duration, "addr":motor_addrs[i], "mode":0, "duty":0, "freq":2, "wave":0})
     
-commands.append({"time":0, "addr":0, "mode":1, "duty":15, "freq":3, "wave":1})
-commands.append({"time":start_time+vib_duration*(motor_num+1)+2.0, "addr":0, "mode":0, "duty":15, "freq":3, "wave":1})
+# commands.append({"time":0, "addr":0, "mode":1, "duty":15, "freq":3, "wave":1})
+# commands.append({"time":start_time+vib_duration*(motor_num+1)+2.0, "addr":0, "mode":0, "duty":15, "freq":3, "wave":1})
 
 ### phantom gaussian
 
@@ -250,14 +250,34 @@ commands.append({"time":start_time+vib_duration*(motor_num+1)+2.0, "addr":0, "mo
 # commands.append({"time":round(start_time+time_step*5*step+2.0, 1), "addr":0, "mode":0, "duty":15, "freq":3, "wave":1})
 
 
+### info transfer
+ids = [1,2,3,4,5,10,9,8,7,6,31,32,33,34,35,40,39,38,37,36]
+start_time = 0.0
+duration = 0.5
+vib_step = 1.0
+duty_num = 3
+for id in ids:
+    # intensity 1
+    if id < 30:
+        commands.append({"time":0, "addr":0, "mode":1, "duty":15, "freq":3, "wave":1})
+    else:
+        commands.append({"time":0, "addr":30, "mode":1, "duty":15, "freq":3, "wave":1})
+    commands.append({"time":round(start_time+vib_step, 2), "addr":id, "mode":1, "duty":7, "freq":2, "wave":0})
+    commands.append({"time":round(start_time+vib_step+duration, 2), "addr":id, "mode":0, "duty":7, "freq":2, "wave":0})
+    if id < 30:
+        commands.append({"time":0, "addr":0, "mode":0, "duty":15, "freq":3, "wave":1})
+    else:
+        commands.append({"time":0, "addr":30, "mode":0, "duty":15, "freq":3, "wave":1})
 
-commands.sort(key=lambda x: x['addr'])
-commands.sort(key=lambda x: x['time'])
+# commands.sort(key=lambda x: x['addr'])
+# commands.sort(key=lambda x: x['time'])
 
-file_path = 'commands/commands_phantom_2cm.json'
+file_path = 'commands/commands_infotransfer_body_20230820.json'
 with open(file_path, "w") as file:
     counter = 0
     for command in commands:
         json.dump(command, file)
         counter += 1
-        file.write("\n")
+        if counter == 4:
+            file.write("\n")
+            counter = 0

@@ -95,22 +95,26 @@ class MyCharacteristicCallbacks: public BLECharacteristicCallbacks {
      */
     void sendCommand(DynamicJsonDocument& command){
       int motor_addr = command["addr"].as<int>();
+      int send_motor_addr = motor_addr % 30;
+      int serial_group_number = motor_addr / 30;
       int is_start = command["mode"].as<int>();
       int duty = command["duty"].as<int>();
       int freq = command["freq"].as<int>();
       int wave = command["wave"].as<int>();
-      if(motor_addr>=0 && motor_addr<96){// maximum number of motor on one chain
+      if(motor_addr>=0 && motor_addr<256){// maximum number of motor on one chain
         if(is_start == 1){//start command, two bytes
           uint8_t message[2];
-          message[0] = (motor_addr << 1) + is_start;
+          message[0] = ((send_motor_addr) << 1) + is_start;
           message[1] = 128 + (duty << 3) + (freq << 1) + wave;
-          serial_group[5].write(message, 2);
+          serial_group[serial_group_number].write(message, 2);
+          Serial.println(serial_group_number);
+          Serial.println(send_motor_addr);
           strip.setPixelColor(0, colors[motor_addr % color_num]);
           strip.show();
         }
         else{//stop command, only one byte 
-          uint8_t message = (motor_addr << 1) + is_start;
-          serial_group[5].write(message);
+          uint8_t message = (send_motor_addr << 1) + is_start;
+          serial_group[serial_group_number].write(message);
           strip.setPixelColor(0, 0, 0, 0);
           strip.show();
         }
