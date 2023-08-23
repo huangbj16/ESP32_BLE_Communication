@@ -7,7 +7,7 @@ MOTOR_UUID = 'f22535de-5375-44bd-8ca9-d0ea9ff9e410'
 async def setMotor(client):
     while True:
         motor_addr = int(input('what is the next motor you want to control?'))
-        if motor_addr % 20 == 0:
+        if motor_addr % 30 == 0:
             duty = int(input('0-31 for intensity?'))
             start_or_stop = int(input('1 for start and 0 for stop?'))
             command = {

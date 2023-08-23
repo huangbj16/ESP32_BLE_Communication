@@ -21,16 +21,12 @@ class DrawingWidget(QWidget):
         self.isPractice = True
         
         # initialize the button positions
-        self.button_size = 20
+        self.button_size = 40
         self.buttons = []
-        # ids = [5, 4, 3, 2, 1, 6, 7, 8, 9, 10, 15, 14, 13, 12, 11, 16, 17, 18, 19, 20]
-        ids = [9, 7, 5, 3, 1, 11, 13, 15, 17, 19, 29, 27, 25, 23, 21, 31, 33, 35, 37, 39]
+        ids = [92,94,96,98,100,109,107,105,103,101,62,64,66,68,70,79,77,75,73,71]
         for i in range(4):
             for j in range(5):
-                if (i % 2) == 0:
-                    pos = QPoint(213+j*306, 100+i*150)
-                else:
-                    pos = QPoint(60+j*306, 100+i*150)
+                pos = QPoint(213+j*306, 100+i*150)
                 id = ids[i*5 + j]
                 self.buttons.append({"pos":pos, "id":id, "isClicked":False})
 
@@ -60,7 +56,8 @@ class DrawingWidget(QWidget):
         if not self.isClicked and event.button() == Qt.LeftButton:
             # check if event.pos() is on any button, if yes, update status
             print(event.pos())
-            for button in self.buttons:
+            for i in range(len(self.buttons)):
+                button = self.buttons[i]
                 if (button["pos"] - event.pos()).manhattanLength() < self.button_size*2:
                     self.isClicked = True
                     self.clickId = self.buttons.index(button)
@@ -69,7 +66,7 @@ class DrawingWidget(QWidget):
                     self.update()
                     if self.isPractice:
                         print("trigger motor")
-                        self.mainWindow.triggerPracticeMotor(button["id"])
+                        self.mainWindow.triggerPracticeMotor(i)
 
     def clearClick(self):
         self.isClicked = False
@@ -97,11 +94,12 @@ class MainWindow(QMainWindow):
         self.isStart = False
         self.experiment_round_total = 0
         self.experiment_commands = []
+        self.template_commands = []
         self.clicked_button_ids = []
 
 
     '''
-    Load motor positions from setup file
+    Load experiment file
     '''
     def importSetupFile(self):
         file_dialog = QFileDialog()
@@ -121,9 +119,31 @@ class MainWindow(QMainWindow):
                         commands.append(command_str)
                     self.experiment_commands.append(commands)
             print("new experiment file loaded, data num = ", self.experiment_round_total)
+
+    '''
+    Load command file
+    '''
+    def importTemplateFile(self):
+        file_dialog = QFileDialog()
+        file_path, _ = file_dialog.getOpenFileName(self, "Import Template File", "", "JSON Files (*.json)")
+        if file_path:
+            # Parse the setup file to extract motor positions
+            self.template_commands_total = 0
+            self.template_commands.clear()
+            with open(file_path, "r") as file:
+                lines = file.readlines()
+                self.template_commands_total = len(lines)
+                for line in lines:
+                    command_strs = re.findall(r'{[^{}]*}', line)
+                    commands = []
+                    for command_str in command_strs:
+                        print(command_str)
+                        commands.append(command_str)
+                    self.template_commands.append(commands)
+            print("new template file loaded, template command num = ", self.template_commands_total)
     
     '''
-    save drawings to a local file
+    save experiment results to a local file
     '''
     def saveDataToFile(self):
         file_dialog = QFileDialog()
@@ -138,6 +158,10 @@ class MainWindow(QMainWindow):
     def createMenu(self):
         menu_bar = self.menuBar()
         file_menu = menu_bar.addMenu("File")
+
+        import_template_action = QAction("Import Template File", self)
+        import_template_action.triggered.connect(self.importTemplateFile)
+        file_menu.addAction(import_template_action)
 
         import_action = QAction("Import Experiment File", self)
         import_action.triggered.connect(self.importSetupFile)
@@ -188,7 +212,7 @@ class MainWindow(QMainWindow):
                 print("send command for ", self.current_round)
                 self.message_line.setText('trial #'+str(self.current_round))
                 self.isStart = True
-                ### Trigger Bluetooth command
+                ## Trigger Bluetooth command
                 print(self.experiment_commands[self.current_round])
                 commands = '\n'.join(self.experiment_commands[self.current_round])
                 self.bluetooth_signal.emit(commands)
@@ -243,18 +267,10 @@ class MainWindow(QMainWindow):
             self.intensity_button.setText("low intensity")
 
     def triggerPracticeMotor(self, motor_id): # serving function for practice mode
-        # print("trigger ", motor_id)
-        for command in self.experiment_commands:
-            command_json = json.loads(command[1])
-            # print(command_json["addr"])
-            if self.isLowIntensity:
-                intensity_level = 3
-            else:
-                intensity_level = 15
-            if command_json["addr"] == motor_id and command_json["duty"] == intensity_level:
-                commands = '\n'.join(command)
-                self.bluetooth_signal.emit(commands)
-                break
+        print("trigger ", motor_id)
+        commands = '\n'.join(self.template_commands[motor_id])
+        print("commands = \n", commands)
+        self.bluetooth_signal.emit(commands)
 
 # Main function
 def main():

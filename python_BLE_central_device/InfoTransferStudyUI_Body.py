@@ -26,12 +26,12 @@ class DrawingWidget(QWidget):
         ids = [1,2,3,4,5,10,9,8,7,6,31,32,33,34,35,40,39,38,37,36]
         for i in range(2):
             for j in range(5):
-                pos = QPoint(900+i*150, 180+j*120)
+                pos = QPoint(900+i*150, 150+j*120)
                 id = ids[i*5 + j]
                 self.buttons.append({"pos":pos, "id":id, "isClicked":False})
         for i in range(2):
             for j in range(5):
-                pos = QPoint(550+i*150, 180+j*120)
+                pos = QPoint(550+i*150, 150+j*120)
                 id = ids[10 + i*5 + j]
                 self.buttons.append({"pos":pos, "id":id, "isClicked":False})
 
@@ -272,8 +272,11 @@ class MainWindow(QMainWindow):
             self.intensity_button.setText("low intensity")
 
     def triggerPracticeMotor(self, motor_id): # serving function for practice mode
-        print("trigger ", motor_id)
-        commands = '\n'.join(self.template_commands[motor_id])
+        print("trigger ", motor_id, ' low intensity = ',self.isLowIntensity)
+        if self.isLowIntensity:
+            commands = '\n'.join(self.template_commands[motor_id*2])
+        else:
+            commands = '\n'.join(self.template_commands[motor_id*2+1])
         print("commands = \n", commands)
         self.bluetooth_signal.emit(commands)
 

@@ -21,7 +21,7 @@ BLECharacteristic *csCharacteristic;
 
 bool deviceConnected = false;
  
-Adafruit_NeoPixel strip(1, 0 , NEO_GRB + NEO_KHZ800);
+//Adafruit_NeoPixel strip(1, 0 , NEO_GRB + NEO_KHZ800);
 
 //const int subchain_pins[6] = {26,25,5,19,21,14,32,15,33,27,12,13};
 const int subchain_pins[6] = {26,25,5,19,21,14};
@@ -107,16 +107,17 @@ class MyCharacteristicCallbacks: public BLECharacteristicCallbacks {
           message[0] = ((send_motor_addr) << 1) + is_start;
           message[1] = 128 + (duty << 3) + (freq << 1) + wave;
           serial_group[serial_group_number].write(message, 2);
-          Serial.println(serial_group_number);
-          Serial.println(send_motor_addr);
-          strip.setPixelColor(0, colors[motor_addr % color_num]);
-          strip.show();
+//          Serial.println(serial_group_number);
+//          Serial.println(send_motor_addr);
+//          Serial.println(message[1]);
+//          strip.setPixelColor(0, colors[motor_addr % color_num]);
+//          strip.show();
         }
         else{//stop command, only one byte 
           uint8_t message = (send_motor_addr << 1) + is_start;
           serial_group[serial_group_number].write(message);
-          strip.setPixelColor(0, 0, 0, 0);
-          strip.show();
+//          strip.setPixelColor(0, 0, 0, 0);
+//          strip.show();
         }
       }
       else{
@@ -164,15 +165,15 @@ void setup() {
   digitalWrite(LED_BUILTIN, HIGH);
   pinMode(2, OUTPUT);
   digitalWrite(2, HIGH);
-  strip.begin();
-  strip.setBrightness(64);
-  colors[0] = strip.Color(255, 0, 0);
-  colors[1] = strip.Color(0, 255, 0);
-  colors[2] = strip.Color(0, 0, 255);
-  colors[3] = strip.Color(255, 0, 255);
-  colors[4] = strip.Color(255, 255, 0);
-  strip.setPixelColor(0, colors[0]);
-  strip.show();
+//  strip.begin();
+//  strip.setBrightness(64);
+//  colors[0] = strip.Color(255, 0, 0);
+//  colors[1] = strip.Color(0, 255, 0);
+//  colors[2] = strip.Color(0, 0, 255);
+//  colors[3] = strip.Color(255, 0, 255);
+//  colors[4] = strip.Color(255, 255, 0);
+//  strip.setPixelColor(0, colors[0]);
+//  strip.show();
   
   //BLE setup
   BLEDevice::init("FEATHER_ESP32");

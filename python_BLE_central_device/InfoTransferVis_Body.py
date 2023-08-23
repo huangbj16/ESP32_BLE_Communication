@@ -7,10 +7,11 @@ experiment_round_total = 0
 stimuli_array = []
 data_array = []
 
+addr_array = [1,2,3,4,5,10,9,8,7,6,31,32,33,34,35,40,39,38,37,36]
 
 # read stimuli file
 
-file_path = "data/InfoTransfer_two_intensity_test_shuffle.json"
+file_path = "commands/commands_infotransfer_body_20230823_shuffle.json"
 
 with open(file_path, "r") as file:
     lines = file.readlines()
@@ -20,11 +21,12 @@ with open(file_path, "r") as file:
         print(command_strs[1])
         command_json = json.loads(command_strs[1])
         id = command_json["addr"]
-        isLowIntensity = 1 if command_json["duty"] == 3 else 0
-        stimuli_array.append(id-isLowIntensity) # if low then original id-1, if high then id
+        buck_json = json.loads(command_strs[0])
+        offset = 1 if buck_json["duty"] == 3 else 0
+        stimuli_array.append(addr_array.index(id)*2+offset) # if low then original id-1, if high then id
 
 # read data file
-file_path = "data/data_ethan_IT_20230720.json"
+file_path = "data/data_yuta_20230823_infotranbody.json"
 
 with open(file_path, "r") as file:
     lines = file.readlines()
@@ -32,8 +34,8 @@ with open(file_path, "r") as file:
     for line in lines:
         data_json = json.loads(line)
         id = data_json["id"]
-        isLowIntensity = 1 if data_json["low_intensity"] == True else 0
-        data_array.append(id-isLowIntensity) # if low then original id, if high then id+1
+        offset = 1 if data_json["low_intensity"] == False else 0
+        data_array.append(addr_array.index(id)*2+offset) # if low then original id, if high then id+1
 
 print('experiment length = ', experiment_round_total)
 
@@ -41,13 +43,13 @@ stimuli_array = np.array(stimuli_array)
 data_array = np.array(data_array)
 print(np.max(stimuli_array), np.min(stimuli_array), stimuli_array)
 print(np.max(data_array), np.min(data_array), data_array)
-category_num = 40
-repeat_num = 3
+category_num = 20
+repeat_num = 6
 count_array = np.zeros((category_num), dtype=np.float32)
 
 for i in range(experiment_round_total):
-    if stimuli_array[i] == data_array[i]:
-        count_array[stimuli_array[i]] += 1
+    if (stimuli_array[i]>>1) == (data_array[i]>>1):
+        count_array[stimuli_array[i]>>1] += 1
 
 # count_array /= repeat_num
 
@@ -59,10 +61,10 @@ for i in range(experiment_round_total):
 # print(np.sum(count_array), np.sum(num_zeros), np.sum(num_minus), np.sum(num_plus))
 print("accuracy = ", np.sum(count_array)/experiment_round_total)
 
-# plt.plot(count_array)
-# plt.show()
+plt.plot(count_array)
+plt.show()
 
-# exit()
+exit()
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -80,8 +82,8 @@ plt.colorbar()
 # Label the axes and set tick marks
 plt.xlabel('Predicted Label')
 plt.ylabel('True Label')
-plt.xticks(np.arange(40))
-plt.yticks(np.arange(40))
+plt.xticks(np.arange(category_num))
+plt.yticks(np.arange(category_num))
 
 # Add text annotations in each cell
 for i in range(conf_matrix.shape[0]):
@@ -107,7 +109,7 @@ stimuli_distribution = np.bincount(stimuli_array) / len(stimuli_array)
 data_distribution = np.bincount(data_array) / len(data_array)
 
 # Calculate the joint probability distribution
-joint_distribution = np.histogram2d(stimuli_array, data_array, bins=(40, 40))[0] / len(stimuli_array)
+joint_distribution = np.histogram2d(stimuli_array, data_array, bins=(category_num, category_num))[0] / len(stimuli_array)
 
 # Calculate the mutual information
 mi = 0
