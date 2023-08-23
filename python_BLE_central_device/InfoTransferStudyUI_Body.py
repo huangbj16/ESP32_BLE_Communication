@@ -1,6 +1,6 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QVBoxLayout, QWidget, QAction, QFileDialog, QToolBar
-from PyQt5.QtGui import QPainter, QPen, QColor, QImage, QBrush
+from PyQt5.QtGui import QPainter, QPen, QColor, QImage, QBrush, QIcon
 from PyQt5.QtCore import Qt, QPoint, pyqtSignal, QSize
 import json
 import numpy as np
@@ -26,16 +26,16 @@ class DrawingWidget(QWidget):
         ids = [1,2,3,4,5,10,9,8,7,6,31,32,33,34,35,40,39,38,37,36]
         for i in range(2):
             for j in range(5):
-                pos = QPoint(900+i*150, 150+j*120)
+                pos = QPoint(880+i*120, 170+j*120)
                 id = ids[i*5 + j]
                 self.buttons.append({"pos":pos, "id":id, "isClicked":False})
         for i in range(2):
             for j in range(5):
-                pos = QPoint(550+i*150, 150+j*120)
+                pos = QPoint(600+i*120, 170+j*120)
                 id = ids[10 + i*5 + j]
                 self.buttons.append({"pos":pos, "id":id, "isClicked":False})
 
-        self.background_image = QImage("data/shirt.png")
+        self.background_image = QImage("data/long_shirt.png")
 
     def paintEvent(self, event):
         painter = QPainter(self)
@@ -180,6 +180,7 @@ class MainWindow(QMainWindow):
         toolbar = QToolBar()
         toolbar.setFixedHeight(50)  # Set the desired height for the toolbar
         toolbar.setStyleSheet("QToolButton { min-width: 120px; min-height: 50px}")
+        toolbar.setIconSize(QSize(100, 100))
         self.addToolBar(toolbar)
 
         self.start_button = QAction("Start", self)
@@ -194,10 +195,12 @@ class MainWindow(QMainWindow):
         self.clear_button.triggered.connect(self.clearButtonClicked)
         toolbar.addAction(self.clear_button)
 
-        self.intensity_button = QAction("low intensity", self)
+        self.icon_pattern_continuous = QIcon("data/pattern_continuous.png")
+        self.icon_pattern_discrete = QIcon("data/pattern_discrete.png")
+        self.intensity_button = QAction(self.icon_pattern_continuous, "continuous", self)
         self.intensity_button.triggered.connect(self.intensityButtonClicked)
         toolbar.addAction(self.intensity_button)
-        self.isLowIntensity = True
+        self.isContinuous = True
 
         self.toggle_mode_button = QAction("Practice Mode", self)
         self.toggle_mode_button.triggered.connect(self.toggleButtonClicked)
@@ -236,7 +239,7 @@ class MainWindow(QMainWindow):
         if self.isStart:
             if self.drawing_widget.clickId != -1:
                 print("Data saved")
-                self.clicked_button_ids.append({"id":self.drawing_widget.buttons[self.drawing_widget.clickId]["id"], "low_intensity":self.isLowIntensity})
+                self.clicked_button_ids.append({"id":self.drawing_widget.buttons[self.drawing_widget.clickId]["id"], "pattern":self.isContinuous})
                 self.drawing_widget.clearClick()
                 self.isStart = False
                 self.current_round += 1
@@ -264,16 +267,18 @@ class MainWindow(QMainWindow):
             print("toggle mode to practice")
 
     def intensityButtonClicked(self):
-        if self.isLowIntensity:
-            self.isLowIntensity = False
-            self.intensity_button.setText("high intensity")
+        if self.isContinuous:
+            self.isContinuous = False
+            self.intensity_button.setText("discrete")
+            self.intensity_button.setIcon(self.icon_pattern_discrete)
         else:
-            self.isLowIntensity = True
-            self.intensity_button.setText("low intensity")
+            self.isContinuous = True
+            self.intensity_button.setText("continuous")
+            self.intensity_button.setIcon(self.icon_pattern_continuous)
 
     def triggerPracticeMotor(self, motor_id): # serving function for practice mode
-        print("trigger ", motor_id, ' low intensity = ',self.isLowIntensity)
-        if self.isLowIntensity:
+        print("trigger ", motor_id, ' is Pattern Continuous = ',self.isContinuous)
+        if self.isContinuous:
             commands = '\n'.join(self.template_commands[motor_id*2])
         else:
             commands = '\n'.join(self.template_commands[motor_id*2+1])
