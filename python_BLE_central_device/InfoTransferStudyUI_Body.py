@@ -197,9 +197,9 @@ class MainWindow(QMainWindow):
 
         self.icon_pattern_continuous = QIcon("data/pattern_continuous.png")
         self.icon_pattern_discrete = QIcon("data/pattern_discrete.png")
-        self.intensity_button = QAction(self.icon_pattern_continuous, "continuous", self)
-        self.intensity_button.triggered.connect(self.intensityButtonClicked)
-        toolbar.addAction(self.intensity_button)
+        self.pattern_button = QAction(self.icon_pattern_continuous, "continuous", self)
+        self.pattern_button.triggered.connect(self.intensityButtonClicked)
+        toolbar.addAction(self.pattern_button)
         self.isContinuous = True
 
         self.toggle_mode_button = QAction("Practice Mode", self)
@@ -269,12 +269,12 @@ class MainWindow(QMainWindow):
     def intensityButtonClicked(self):
         if self.isContinuous:
             self.isContinuous = False
-            self.intensity_button.setText("discrete")
-            self.intensity_button.setIcon(self.icon_pattern_discrete)
+            self.pattern_button.setText("discrete")
+            self.pattern_button.setIcon(self.icon_pattern_discrete)
         else:
             self.isContinuous = True
-            self.intensity_button.setText("continuous")
-            self.intensity_button.setIcon(self.icon_pattern_continuous)
+            self.pattern_button.setText("continuous")
+            self.pattern_button.setIcon(self.icon_pattern_continuous)
 
     def triggerPracticeMotor(self, motor_id): # serving function for practice mode
         print("trigger ", motor_id, ' is Pattern Continuous = ',self.isContinuous)

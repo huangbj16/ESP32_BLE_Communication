@@ -251,11 +251,11 @@ commands = []
 
 
 ### info transfer body
-ids = [1,2,3,4,5,10,9,8,7,6,31,32,33,34,35,40,39,38,37,36]
-start_time = 0.0
-duration = 1.0
-vib_step = 1.0
-duty_num = 3
+# ids = [1,2,3,4,5,10,9,8,7,6,31,32,33,34,35,40,39,38,37,36]
+# start_time = 0.0
+# duration = 1.0
+# vib_step = 1.0
+# duty_num = 3
 # for id in ids:
 #     # intensity 1
 #     if id < 30:
@@ -280,41 +280,41 @@ duty_num = 3
 #     else:
 #         commands.append({"time":0, "addr":30, "mode":0, "duty":3, "freq":0, "wave":1})
 
-for id in ids:
-    # pattern 1: continuous
-    if id < 30:
-        commands.append({"time":0, "addr":0, "mode":1, "duty":1, "freq":1, "wave":1})
-    else:
-        commands.append({"time":0, "addr":30, "mode":1, "duty":1, "freq":1, "wave":1})
-    commands.append({"time":round(start_time+vib_step, 2), "addr":id, "mode":1, "duty":15, "freq":2, "wave":0})
-    commands.append({"time":round(start_time+vib_step+duration, 2), "addr":id, "mode":0, "duty":15, "freq":2, "wave":0})
-    if id < 30:
-        commands.append({"time":0, "addr":0, "mode":0, "duty":1, "freq":1, "wave":1})
-    else:
-        commands.append({"time":0, "addr":30, "mode":0, "duty":1, "freq":1, "wave":1})
-    # pattern 2: discrete
-    if id < 30:
-        commands.append({"time":0, "addr":0, "mode":1, "duty":1, "freq":1, "wave":1})
-    else:
-        commands.append({"time":0, "addr":30, "mode":1, "duty":1, "freq":1, "wave":1})
-    commands.append({"time":round(start_time+vib_step, 2), "addr":id, "mode":1, "duty":15, "freq":2, "wave":0})
-    commands.append({"time":round(start_time+vib_step+0.2, 2), "addr":id, "mode":0, "duty":15, "freq":2, "wave":0})
-    commands.append({"time":round(start_time+vib_step+0.4, 2), "addr":id, "mode":1, "duty":15, "freq":2, "wave":0})
-    commands.append({"time":round(start_time+vib_step+0.6, 2), "addr":id, "mode":0, "duty":15, "freq":2, "wave":0})
-    commands.append({"time":round(start_time+vib_step+0.8, 2), "addr":id, "mode":1, "duty":15, "freq":2, "wave":0})
-    commands.append({"time":round(start_time+vib_step+duration, 2), "addr":id, "mode":0, "duty":15, "freq":2, "wave":0})
-    if id < 30:
-        commands.append({"time":0, "addr":0, "mode":0, "duty":1, "freq":1, "wave":1})
-    else:
-        commands.append({"time":0, "addr":30, "mode":0, "duty":1, "freq":1, "wave":1})
+# for id in ids:
+#     # pattern 1: continuous
+#     if id < 30:
+#         commands.append({"time":0, "addr":0, "mode":1, "duty":1, "freq":1, "wave":1})
+#     else:
+#         commands.append({"time":0, "addr":30, "mode":1, "duty":1, "freq":1, "wave":1})
+#     commands.append({"time":round(start_time+vib_step, 2), "addr":id, "mode":1, "duty":15, "freq":2, "wave":0})
+#     commands.append({"time":round(start_time+vib_step+duration, 2), "addr":id, "mode":0, "duty":15, "freq":2, "wave":0})
+#     if id < 30:
+#         commands.append({"time":0, "addr":0, "mode":0, "duty":1, "freq":1, "wave":1})
+#     else:
+#         commands.append({"time":0, "addr":30, "mode":0, "duty":1, "freq":1, "wave":1})
+#     # pattern 2: discrete
+#     if id < 30:
+#         commands.append({"time":0, "addr":0, "mode":1, "duty":1, "freq":1, "wave":1})
+#     else:
+#         commands.append({"time":0, "addr":30, "mode":1, "duty":1, "freq":1, "wave":1})
+#     commands.append({"time":round(start_time+vib_step, 2), "addr":id, "mode":1, "duty":15, "freq":2, "wave":0})
+#     commands.append({"time":round(start_time+vib_step+0.2, 2), "addr":id, "mode":0, "duty":15, "freq":2, "wave":0})
+#     commands.append({"time":round(start_time+vib_step+0.4, 2), "addr":id, "mode":1, "duty":15, "freq":2, "wave":0})
+#     commands.append({"time":round(start_time+vib_step+0.6, 2), "addr":id, "mode":0, "duty":15, "freq":2, "wave":0})
+#     commands.append({"time":round(start_time+vib_step+0.8, 2), "addr":id, "mode":1, "duty":15, "freq":2, "wave":0})
+#     commands.append({"time":round(start_time+vib_step+duration, 2), "addr":id, "mode":0, "duty":15, "freq":2, "wave":0})
+#     if id < 30:
+#         commands.append({"time":0, "addr":0, "mode":0, "duty":1, "freq":1, "wave":1})
+#     else:
+#         commands.append({"time":0, "addr":30, "mode":0, "duty":1, "freq":1, "wave":1})
 
 ### info transfer arm
 
-# ids = [92,94,96,98,100,109,107,105,103,101,62,64,66,68,70,79,77,75,73,71]
-# start_time = 0.0
-# duration = 0.5
-# vib_step = 1.0
-# duty_num = 3
+ids = [92,94,96,98,100,109,107,105,103,101,62,64,66,68,70,79,77,75,73,71]
+start_time = 0.0
+duration = 0.5
+vib_step = 1.0
+duty_num = 3
 # for id in ids:
 #     # intensity 1
 #     if id < 90:
@@ -328,10 +328,39 @@ for id in ids:
 #     else:
 #         commands.append({"time":0, "addr":90, "mode":0, "duty":1, "freq":3, "wave":1})
 
+for id in ids:
+    # pattern 1: continuous
+    if id < 90:
+        commands.append({"time":0, "addr":60, "mode":1, "duty":3, "freq":3, "wave":1})
+    else:
+        commands.append({"time":0, "addr":90, "mode":1, "duty":3, "freq":3, "wave":1})
+    commands.append({"time":round(start_time+vib_step, 2), "addr":id, "mode":1, "duty":15, "freq":2, "wave":0})
+    commands.append({"time":round(start_time+vib_step+duration, 2), "addr":id, "mode":0, "duty":15, "freq":2, "wave":0})
+    if id < 90:
+        commands.append({"time":0, "addr":60, "mode":0, "duty":3, "freq":3, "wave":1})
+    else:
+        commands.append({"time":0, "addr":90, "mode":0, "duty":3, "freq":3, "wave":1})
+    # pattern 2: discrete
+    if id < 90:
+        commands.append({"time":0, "addr":60, "mode":1, "duty":3, "freq":3, "wave":1})
+    else:
+        commands.append({"time":0, "addr":90, "mode":1, "duty":3, "freq":3, "wave":1})
+    commands.append({"time":round(start_time+vib_step, 2), "addr":id, "mode":1, "duty":15, "freq":2, "wave":0})
+    commands.append({"time":round(start_time+vib_step+0.2, 2), "addr":id, "mode":0, "duty":15, "freq":2, "wave":0})
+    commands.append({"time":round(start_time+vib_step+0.4, 2), "addr":id, "mode":1, "duty":15, "freq":2, "wave":0})
+    commands.append({"time":round(start_time+vib_step+0.6, 2), "addr":id, "mode":0, "duty":15, "freq":2, "wave":0})
+    commands.append({"time":round(start_time+vib_step+0.8, 2), "addr":id, "mode":1, "duty":15, "freq":2, "wave":0})
+    commands.append({"time":round(start_time+vib_step+duration, 2), "addr":id, "mode":0, "duty":15, "freq":2, "wave":0})
+    if id < 90:
+        commands.append({"time":0, "addr":60, "mode":0, "duty":3, "freq":3, "wave":1})
+    else:
+        commands.append({"time":0, "addr":90, "mode":0, "duty":3, "freq":3, "wave":1})
+
+
 # commands.sort(key=lambda x: x['addr'])
 # commands.sort(key=lambda x: x['time'])
 
-file_path = 'commands/commands_infotransfer_body_loc+pat_20230823.json'
+file_path = 'commands/commands_infotransfer_arm_loc+pat_20230823.json'
 with open(file_path, "w") as file:
     counter = 0
     for command in commands:

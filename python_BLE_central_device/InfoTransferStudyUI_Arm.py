@@ -1,6 +1,6 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QVBoxLayout, QWidget, QAction, QFileDialog, QToolBar
-from PyQt5.QtGui import QPainter, QPen, QColor, QImage, QBrush
+from PyQt5.QtGui import QPainter, QPen, QColor, QImage, QBrush, QIcon
 from PyQt5.QtCore import Qt, QPoint, pyqtSignal, QSize
 import json
 import numpy as np
@@ -175,6 +175,7 @@ class MainWindow(QMainWindow):
         toolbar = QToolBar()
         toolbar.setFixedHeight(50)  # Set the desired height for the toolbar
         toolbar.setStyleSheet("QToolButton { min-width: 120px; min-height: 50px}")
+        toolbar.setIconSize(QSize(100, 100))
         self.addToolBar(toolbar)
 
         self.start_button = QAction("Start", self)
@@ -189,10 +190,12 @@ class MainWindow(QMainWindow):
         self.clear_button.triggered.connect(self.clearButtonClicked)
         toolbar.addAction(self.clear_button)
 
-        self.intensity_button = QAction("low intensity", self)
-        self.intensity_button.triggered.connect(self.intensityButtonClicked)
-        toolbar.addAction(self.intensity_button)
-        self.isLowIntensity = True
+        self.icon_pattern_continuous = QIcon("data/pattern_continuous.png")
+        self.icon_pattern_discrete = QIcon("data/pattern_discrete.png")
+        self.pattern_button = QAction(self.icon_pattern_continuous, "continuous", self)
+        self.pattern_button.triggered.connect(self.intensityButtonClicked)
+        toolbar.addAction(self.pattern_button)
+        self.isContinuous = True
 
         self.toggle_mode_button = QAction("Practice Mode", self)
         self.toggle_mode_button.triggered.connect(self.toggleButtonClicked)
@@ -231,7 +234,7 @@ class MainWindow(QMainWindow):
         if self.isStart:
             if self.drawing_widget.clickId != -1:
                 print("Data saved")
-                self.clicked_button_ids.append({"id":self.drawing_widget.buttons[self.drawing_widget.clickId]["id"], "low_intensity":self.isLowIntensity})
+                self.clicked_button_ids.append({"id":self.drawing_widget.buttons[self.drawing_widget.clickId]["id"], "pattern":self.isContinuous})
                 self.drawing_widget.clearClick()
                 self.isStart = False
                 self.current_round += 1
@@ -259,16 +262,21 @@ class MainWindow(QMainWindow):
             print("toggle mode to practice")
 
     def intensityButtonClicked(self):
-        if self.isLowIntensity:
-            self.isLowIntensity = False
-            self.intensity_button.setText("high intensity")
+        if self.isContinuous:
+            self.isContinuous = False
+            self.pattern_button.setText("discrete")
+            self.pattern_button.setIcon(self.icon_pattern_discrete)
         else:
-            self.isLowIntensity = True
-            self.intensity_button.setText("low intensity")
+            self.isContinuous = True
+            self.pattern_button.setText("continuous")
+            self.pattern_button.setIcon(self.icon_pattern_continuous)
 
     def triggerPracticeMotor(self, motor_id): # serving function for practice mode
-        print("trigger ", motor_id)
-        commands = '\n'.join(self.template_commands[motor_id])
+        print("trigger ", motor_id, ' is Pattern Continuous = ',self.isContinuous)
+        if self.isContinuous:
+            commands = '\n'.join(self.template_commands[motor_id*2])
+        else:
+            commands = '\n'.join(self.template_commands[motor_id*2+1])
         print("commands = \n", commands)
         self.bluetooth_signal.emit(commands)
 
@@ -278,7 +286,7 @@ def main():
     window = MainWindow()
     window.show()
 
-    ### Create and start the Bluetooth thread
+    ## Create and start the Bluetooth thread
     loop = asyncio.get_event_loop()
     bluetooth_thread = BluetoothCommandThread(loop)
     window.bluetooth_signal.connect(bluetooth_thread.bluetooth_callback)
