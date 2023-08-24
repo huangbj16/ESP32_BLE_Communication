@@ -34,7 +34,7 @@ with open(file_path, "r") as file:
     for line in lines:
         data_json = json.loads(line)
         id = data_json["id"]
-        offset = 1 if data_json["isContinuous"] == False else 0
+        offset = 1 if data_json["low_intensity"] == False else 0
         data_array.append(addr_array.index(id)*2+offset) # if low then original id, if high then id+1
 
 print('experiment length = ', experiment_round_total)

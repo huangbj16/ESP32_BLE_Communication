@@ -312,7 +312,7 @@ commands = []
 
 ids = [92,94,96,98,100,109,107,105,103,101,62,64,66,68,70,79,77,75,73,71]
 start_time = 0.0
-duration = 0.5
+duration = 1.0
 vib_step = 1.0
 duty_num = 3
 # for id in ids:

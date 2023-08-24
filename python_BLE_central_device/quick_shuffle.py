@@ -13,15 +13,15 @@ def repeat_and_shuffle(file_path, repeat_count, shuffle=True):
         random.shuffle(repeated_lines)
 
     # Save the shuffled data to a new file
-    new_file_path = file_path.replace('.json', '') + '_shuffle.json'
+    new_file_path = 'commands/commands_infortransfer_body_' + 'P1' + '.json'
     with open(new_file_path, 'w') as new_file:
         new_file.write('\n'.join(repeated_lines))
 
     print(f"Shuffled data has been saved to '{new_file_path}'.")
 
 # Example usage
-file_path = 'commands/commands_infotransfer_arm_loc+pat_20230823.json'  # Path to the input file
-repeat_count = 3     # Number of times to repeat each line
+file_path = 'study_data/template_infotransfer_body.json'  # Path to the input file
+repeat_count = 5     # Number of times to repeat each line
 shuffle_data = True    # Whether to shuffle the data order
 
 repeat_and_shuffle(file_path, repeat_count, shuffle_data)

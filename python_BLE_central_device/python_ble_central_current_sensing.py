@@ -4,7 +4,7 @@ import json
 
 CURRENTSENSING_UUID = "640b8bf5-3c88-44f6-95e0-f5813b390d78"
 MOTOR_UUID = 'f22535de-5375-44bd-8ca9-d0ea9ff9e410'
-MOTOR_NUM = 10
+MOTOR_NUM = 20
 
 current_zero = 0
 
@@ -12,7 +12,7 @@ async def setMotor(client):
     global current_zero
     # data format for the power converter
     command = {
-        'addr':60,
+        'addr':90,
         'mode':1,
         'duty':3, # default
         'freq':3, # default
@@ -52,7 +52,7 @@ async def setMotor(client):
         await asyncio.sleep(0.2)
     
     command = {
-        'addr':60,
+        'addr':90,
         'mode':0,
         'duty':3, # default
         'freq':3, # default
