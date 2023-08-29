@@ -1,5 +1,5 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QVBoxLayout, QWidget, QAction, QFileDialog, QToolBar
+from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QVBoxLayout, QHBoxLayout, QWidget, QAction, QFileDialog, QToolBar, QDialog, QPushButton
 from PyQt5.QtGui import QPainter, QPen, QColor, QImage, QBrush, QIcon
 from PyQt5.QtCore import Qt, QPoint, pyqtSignal, QSize
 import json
@@ -26,11 +26,11 @@ class DrawingWidget(QWidget):
         ids = [92,94,96,98,100,109,107,105,103,101,62,64,66,68,70,79,77,75,73,71]
         for i in range(4):
             for j in range(5):
-                pos = QPoint(213+j*306, 100+i*150)
+                pos = QPoint(150+i*150, 750-j*150)
                 id = ids[i*5 + j]
                 self.buttons.append({"pos":pos, "id":id, "isClicked":False})
 
-        self.background_image = QImage("data/Full_length_background.png")
+        self.background_image = QImage("data/Full_length_background_rotated.png")
 
     def paintEvent(self, event):
         painter = QPainter(self)
@@ -67,6 +67,8 @@ class DrawingWidget(QWidget):
                     if self.isPractice:
                         print("trigger motor")
                         self.mainWindow.triggerPracticeMotor(i)
+                    else:
+                        self.mainWindow.triggerChoosePatternDialog()
 
     def clearClick(self):
         self.isClicked = False
@@ -85,7 +87,7 @@ class MainWindow(QMainWindow):
         # initialization
         self.drawing_widget = DrawingWidget(self)
         self.setCentralWidget(self.drawing_widget)
-        self.resize(1600, 900)  # Set the window size
+        self.resize(900, 1600)  # Set the window size
         self.createMenu()
         self.createToolbar()
 
@@ -193,7 +195,7 @@ class MainWindow(QMainWindow):
         self.icon_pattern_continuous = QIcon("data/pattern_continuous.png")
         self.icon_pattern_discrete = QIcon("data/pattern_discrete.png")
         self.pattern_button = QAction(self.icon_pattern_continuous, "continuous", self)
-        self.pattern_button.triggered.connect(self.intensityButtonClicked)
+        self.pattern_button.triggered.connect(self.patternButtonClicked)
         toolbar.addAction(self.pattern_button)
         self.isContinuous = True
 
@@ -234,7 +236,7 @@ class MainWindow(QMainWindow):
         if self.isStart:
             if self.drawing_widget.clickId != -1:
                 print("Data saved")
-                self.clicked_button_ids.append({"id":self.drawing_widget.buttons[self.drawing_widget.clickId]["id"], "pattern":self.isContinuous})
+                self.clicked_button_ids.append({"id":self.drawing_widget.buttons[self.drawing_widget.clickId]["id"], "isContinuous":self.isContinuous})
                 self.drawing_widget.clearClick()
                 self.isStart = False
                 self.current_round += 1
@@ -243,6 +245,40 @@ class MainWindow(QMainWindow):
                 print("no button is clicked!")
         else:
             print("trial is not started yet!")
+
+    def triggerChoosePatternDialog(self):
+        self.dialog = QDialog(self)
+        self.dialog.setWindowTitle('Popup Window')
+
+        # Create two buttons in the dialog
+        self.btn1 = QPushButton(self.icon_pattern_continuous, 'continuous', self.dialog)
+        self.btn1.clicked.connect(self.onBtn1Clicked)
+        self.btn1.setIconSize(QSize(50, 50))
+
+        self.btn2 = QPushButton(self.icon_pattern_discrete, 'discrete', self.dialog)
+        self.btn2.clicked.connect(self.onBtn2Clicked)
+        self.btn2.setIconSize(QSize(50, 50))
+
+        # Set the layout for the dialog
+        layout = QHBoxLayout()
+        layout.addWidget(self.btn1)
+        layout.addWidget(self.btn2)
+        self.dialog.setLayout(layout)
+
+        # Show the dialog
+        self.dialog.exec_()
+
+    def onBtn1Clicked(self):
+        print("Choose continuous")
+        self.dialog.close()
+        if not self.isContinuous:
+            self.patternButtonClicked()
+
+    def onBtn2Clicked(self):
+        print("Choose discrete")
+        self.dialog.close()
+        if self.isContinuous:
+            self.patternButtonClicked()
 
     def clearButtonClicked(self):
         print("Clear button clicked")
@@ -261,7 +297,7 @@ class MainWindow(QMainWindow):
             self.toggle_mode_button.setText("Practice Mode")
             print("toggle mode to practice")
 
-    def intensityButtonClicked(self):
+    def patternButtonClicked(self):
         if self.isContinuous:
             self.isContinuous = False
             self.pattern_button.setText("discrete")

@@ -11,7 +11,7 @@ addr_array = [1,2,3,4,5,10,9,8,7,6,31,32,33,34,35,40,39,38,37,36]
 
 # read stimuli file
 
-file_path = "commands/commands_infotransfer_body_loc+pat_20230823_shuffle.json"
+file_path = "study_data/commands_infotransfer_body_P8.json"
 
 with open(file_path, "r") as file:
     lines = file.readlines()
@@ -26,7 +26,8 @@ with open(file_path, "r") as file:
         stimuli_array.append(addr_array.index(id)*2+offset) # if low then original id-1, if high then id
 
 # read data file
-file_path = "data/data_20230823_bingjian_IT_body.json"
+
+file_path = "study_data/data_infotransfer_body_P8.json"
 
 with open(file_path, "r") as file:
     lines = file.readlines()
@@ -34,7 +35,7 @@ with open(file_path, "r") as file:
     for line in lines:
         data_json = json.loads(line)
         id = data_json["id"]
-        offset = 1 if data_json["low_intensity"] == False else 0
+        offset = 1 if data_json["isContinuous"] == False else 0
         data_array.append(addr_array.index(id)*2+offset) # if low then original id, if high then id+1
 
 print('experiment length = ', experiment_round_total)
@@ -44,7 +45,7 @@ data_array = np.array(data_array)
 print(np.max(stimuli_array), np.min(stimuli_array), stimuli_array)
 print(np.max(data_array), np.min(data_array), data_array)
 category_num = 40
-repeat_num = 3
+repeat_num = 5
 count_array = np.zeros((category_num), dtype=np.float32)
 
 for i in range(experiment_round_total):

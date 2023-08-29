@@ -5,7 +5,7 @@ import time
 
 MOTOR_UUID = 'f22535de-5375-44bd-8ca9-d0ea9ff9e410'
 
-file_commands = 'commands/commands_phantom_gaussian_8cm.json'
+file_commands = 'commands/commands_pressure_test_20230827.json'
 
 '''
 commands_side_center.json

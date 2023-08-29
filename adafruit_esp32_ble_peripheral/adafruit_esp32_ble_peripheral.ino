@@ -24,8 +24,8 @@ bool deviceConnected = false;
 //Adafruit_NeoPixel strip(1, 0 , NEO_GRB + NEO_KHZ800);
 
 //const int subchain_pins[6] = {26,25,5,19,21,14,32,15,33,27,12,13};
-const int subchain_pins[6] = {26,25,5,19,21,14};
-const int subchain_num = 6;  
+const int subchain_pins[8] = {26,25,5,19,21,14,32,15};
+const int subchain_num = 8;  
 uint32_t colors[5];
 int color_num = 5;
 
