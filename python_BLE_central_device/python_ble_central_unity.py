@@ -11,7 +11,19 @@ async def setMotor(client, socket_conn):
         if not data:
             break
         print('TCP data recv = ', data)
-        await client.write_gatt_char(MOTOR_UUID,  data)
+        if len(data) > 420:
+            print("long data! split!")
+            # Split the data into chunks by "every seventh \n"
+            data_str = data.decode('utf-8').strip()
+            data_chunks = data_str.split("\n")
+            for i in range(0, len(data_chunks), 7):
+                if i < len(data_chunks)-7:
+                    data_sent = "\n".join(data_chunks[i:i+7])
+                else:
+                    data_sent = "\n".join(data_chunks[i:])
+                await client.write_gatt_char(MOTOR_UUID, data_sent.encode('utf-8'))
+        else:
+            await client.write_gatt_char(MOTOR_UUID, data)
 
 async def main(socket_conn):
     devices = await BleakScanner.discover()
@@ -24,10 +36,10 @@ async def main(socket_conn):
                     print(f'BLE connected to {d.address}')
                     val = await client.read_gatt_char(MOTOR_UUID)
                     print('Motor read = ', val)
-                    data = bytearray(b'{"addr": 60, "mode": 1, "duty": 1, "freq": 3, "wave": 1}')
+                    data = bytearray(b'{"addr": 0, "mode": 1, "duty": 1, "freq": 3, "wave": 1}')
                     print(data)
                     await client.write_gatt_char(MOTOR_UUID,  data)
-                    data = bytearray(b'{"addr": 90, "mode": 1, "duty": 1, "freq": 3, "wave": 1}')
+                    data = bytearray(b'{"addr": 30, "mode": 1, "duty": 1, "freq": 3, "wave": 1}')
                     print(data)
                     await client.write_gatt_char(MOTOR_UUID,  data)
                     while True:
