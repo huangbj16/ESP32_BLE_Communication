@@ -4,17 +4,18 @@ import json
 
 CURRENTSENSING_UUID = "640b8bf5-3c88-44f6-95e0-f5813b390d78"
 MOTOR_UUID = 'f22535de-5375-44bd-8ca9-d0ea9ff9e410'
-MOTOR_NUM = 20
+MOTOR_NUM = 8
 
 current_zero = 0
+buck_addr = 210
 
 async def setMotor(client):
     global current_zero
     # data format for the power converter
     command = {
-        'addr':90,
+        'addr':buck_addr, 
         'mode':1,
-        'duty':3, # default
+        'duty':1, # default
         'freq':3, # default
         'wave':1, # default
     }
@@ -31,7 +32,7 @@ async def setMotor(client):
         'wave':0, # default
     }
     for i in range(1, MOTOR_NUM+1):
-        command['addr'] = 90+i # for testing the odd number motors
+        command['addr'] = buck_addr+i # for testing the odd number motors
         command['mode'] = 1 # start
         output = bytearray(json.dumps(command), 'utf-8')
         # print(output)
@@ -52,9 +53,9 @@ async def setMotor(client):
         await asyncio.sleep(0.2)
     
     command = {
-        'addr':90,
+        'addr':buck_addr,
         'mode':0,
-        'duty':3, # default
+        'duty':1, # default
         'freq':3, # default
         'wave':1, # default
     }
