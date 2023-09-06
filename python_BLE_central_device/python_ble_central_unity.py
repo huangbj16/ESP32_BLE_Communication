@@ -36,12 +36,18 @@ async def main(socket_conn):
                     print(f'BLE connected to {d.address}')
                     val = await client.read_gatt_char(MOTOR_UUID)
                     print('Motor read = ', val)
-                    data = bytearray(b'{"addr": 0, "mode": 1, "duty": 1, "freq": 3, "wave": 1}')
-                    print(data)
-                    await client.write_gatt_char(MOTOR_UUID,  data)
-                    data = bytearray(b'{"addr": 30, "mode": 1, "duty": 1, "freq": 3, "wave": 1}')
-                    print(data)
-                    await client.write_gatt_char(MOTOR_UUID,  data)
+                    for i in range(8):
+                        buck_addr = i*30
+                        command = {
+                            'addr':buck_addr, 
+                            'mode':1,
+                            'duty':1, # default
+                            'freq':3, # default
+                            'wave':1, # default
+                        }
+                        data = bytearray(json.dumps(command), 'utf-8')
+                        print(data)
+                        await client.write_gatt_char(MOTOR_UUID,  data)
                     while True:
                         await setMotor(client, socket_conn)
 

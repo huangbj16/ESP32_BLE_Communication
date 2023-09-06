@@ -39,12 +39,13 @@ async def setMotor(client):
         await client.write_gatt_char(MOTOR_UUID,  output)
         await asyncio.sleep(0.2)
 
-        val = await client.read_gatt_char(CURRENTSENSING_UUID)
-        res = int(val)
-        if res >= (current_zero + 30):
-            print(f'Motor # {i} is ON, current = {res}')
-        else:
-            print(f'Motor # {i} is OFF, current = {res}')
+        # val = await client.read_gatt_char(CURRENTSENSING_UUID)
+        # res = int(val)
+        # if res >= (current_zero + 30):
+        #     print(f'Motor # {i} is ON, current = {res}')
+        # else:
+        #     print(f'Motor # {i} is OFF, current = {res}')
+        print(f'Motor # {i}')
         
         command['mode'] = 0 # stop
         output = bytearray(json.dumps(command), 'utf-8')
@@ -55,7 +56,7 @@ async def setMotor(client):
     command = {
         'addr':buck_addr,
         'mode':0,
-        'duty':1, # default
+        'duty':3, # default
         'freq':3, # default
         'wave':1, # default
     }
@@ -75,14 +76,14 @@ async def main():
                 print('feather device found!!!')
                 async with BleakClient(d.address) as client:
                     print(f'BLE connected to {d.address}')
-                    for _ in range(10):
-                        val = await client.read_gatt_char(CURRENTSENSING_UUID)
-                        print('Motor read = ', val)
-                        current_zero += int(val)
-                        await asyncio.sleep(0.2)
-                    current_zero /= 10
-                    print(f'average at zero current = {current_zero}')
-                    await asyncio.sleep(1)
+                    # for _ in range(10):
+                        # val = await client.read_gatt_char(CURRENTSENSING_UUID)
+                        # print('Motor read = ', val)
+                        # current_zero += int(val)
+                        # await asyncio.sleep(0.2)
+                    # current_zero /= 10
+                    # print(f'average at zero current = {current_zero}')
+                    # await asyncio.sleep(1)
                     await setMotor(client)
 
 
