@@ -4,10 +4,10 @@ import json
 
 CURRENTSENSING_UUID = "640b8bf5-3c88-44f6-95e0-f5813b390d78"
 MOTOR_UUID = 'f22535de-5375-44bd-8ca9-d0ea9ff9e410'
-MOTOR_NUM = 8
+MOTOR_NUM = 10
 
 current_zero = 0
-buck_addr = 210
+buck_addr = 0
 
 async def setMotor(client):
     global current_zero
@@ -27,7 +27,7 @@ async def setMotor(client):
     command = {
         'addr':0,
         'mode':1,
-        'duty':15, # default
+        'duty':7, # default
         'freq':2, # default
         'wave':0, # default
     }
@@ -56,7 +56,7 @@ async def setMotor(client):
     command = {
         'addr':buck_addr,
         'mode':0,
-        'duty':3, # default
+        'duty':1, # default
         'freq':3, # default
         'wave':1, # default
     }

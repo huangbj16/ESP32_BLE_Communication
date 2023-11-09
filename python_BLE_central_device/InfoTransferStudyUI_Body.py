@@ -24,16 +24,17 @@ class DrawingWidget(QWidget):
         self.button_size = 40
         self.buttons = []
         ids = [1,2,3,4,5,10,9,8,7,6,31,32,33,34,35,40,39,38,37,36]
+        accuracy = [0.8875, 0.9375, 0.875, 0.675, 0.85, 0.9625, 0.9125, 0.9875, 0.8625, 0.875, 0.9375, 0.9375, 0.95, 0.8125, 0.9, 0.975, 0.9125, 0.85, 0.8125, 0.725]
         for i in range(2):
             for j in range(5):
                 pos = QPoint(880+i*120, 200+j*120)
                 id = ids[i*5 + j]
-                self.buttons.append({"pos":pos, "id":id, "isClicked":False})
+                self.buttons.append({"pos":pos, "id":id, "isClicked":False, "accuracy": accuracy[i*5+j]})
         for i in range(2):
             for j in range(5):
                 pos = QPoint(600+i*120, 200+j*120)
                 id = ids[10 + i*5 + j]
-                self.buttons.append({"pos":pos, "id":id, "isClicked":False})
+                self.buttons.append({"pos":pos, "id":id, "isClicked":False, "accuracy": accuracy[10+i*5+j]})
 
         self.background_image = QImage("data/long_shirt.png")
 

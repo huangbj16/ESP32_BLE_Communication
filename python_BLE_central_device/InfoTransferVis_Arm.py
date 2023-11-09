@@ -127,3 +127,75 @@ normalized_mi = mi / max_entropy
 print("Mutual Information:", mi)
 print("Maximum Information IS:", max_entropy)
 print("Normalized Mutual Information:", normalized_mi)
+
+
+
+
+################ calculate info for position and pattern
+
+
+stimuli_array_position = stimuli_array >> 1
+data_array_position = data_array >> 1
+print(stimuli_array[:10], stimuli_array_position[:10])
+category_num = 20
+
+# Calculate the probability distribution of the stimuli array
+stimuli_distribution = np.bincount(stimuli_array_position) / len(stimuli_array_position)
+
+# Calculate the probability distribution of the data array
+data_distribution = np.bincount(data_array_position) / len(data_array_position)
+
+# Calculate the joint probability distribution
+joint_distribution = np.histogram2d(stimuli_array_position, data_array_position, bins=(category_num, category_num))[0] / len(stimuli_array_position)
+
+# Calculate the mutual information
+mi = 0
+for i in range(len(stimuli_distribution)):
+    for j in range(len(data_distribution)):
+        if joint_distribution[i, j] != 0 and stimuli_distribution[i] != 0 and data_distribution[j] != 0:
+            mi += joint_distribution[i, j] * np.log2(joint_distribution[i, j] / (stimuli_distribution[i] * data_distribution[j]))
+
+# Normalize the mutual information by the maximum entropy of the stimuli array
+max_entropy = entropy(stimuli_distribution, base=2)
+normalized_mi = mi / max_entropy
+
+print("Mutual Information:", mi)
+print("Maximum Information IS:", max_entropy)
+print("Normalized Mutual Information:", normalized_mi)
+
+
+
+
+
+
+
+
+
+stimuli_array_pattern = stimuli_array % 2
+data_array_pattern = data_array % 2
+print(stimuli_array[:10], stimuli_array_pattern[:10])
+category_num = 2
+
+# Calculate the probability distribution of the stimuli array
+stimuli_distribution = np.bincount(stimuli_array_pattern) / len(stimuli_array_pattern)
+
+# Calculate the probability distribution of the data array
+data_distribution = np.bincount(data_array_pattern) / len(data_array_pattern)
+
+# Calculate the joint probability distribution
+joint_distribution = np.histogram2d(stimuli_array_pattern, data_array_pattern, bins=(category_num, category_num))[0] / len(stimuli_array_pattern)
+
+# Calculate the mutual information
+mi = 0
+for i in range(len(stimuli_distribution)):
+    for j in range(len(data_distribution)):
+        if joint_distribution[i, j] != 0 and stimuli_distribution[i] != 0 and data_distribution[j] != 0:
+            mi += joint_distribution[i, j] * np.log2(joint_distribution[i, j] / (stimuli_distribution[i] * data_distribution[j]))
+
+# Normalize the mutual information by the maximum entropy of the stimuli array
+max_entropy = entropy(stimuli_distribution, base=2)
+normalized_mi = mi / max_entropy
+
+print("Mutual Information:", mi)
+print("Maximum Information IS:", max_entropy)
+print("Normalized Mutual Information:", normalized_mi)

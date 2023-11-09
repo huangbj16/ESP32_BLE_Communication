@@ -5,7 +5,7 @@ import time
 
 MOTOR_UUID = 'f22535de-5375-44bd-8ca9-d0ea9ff9e410'
 
-file_commands = 'commands/commands_pressure_test_20230827.json'
+file_commands = 'commands/commands_arm_collection.json'
 
 '''
 commands_side_center.json
@@ -63,7 +63,7 @@ async def sendCommands(client):
                 pass
             actual_sleep_duration = time.perf_counter() - start
             print(f"{start}, Actual sleep duration: {actual_sleep_duration} seconds")
-            # print('commands = \n', output_string)
+            print('commands = \n', output_string)
             output = bytearray(output_string, 'utf-8')
             # print('command len = ', len(output))
             print(time.perf_counter())
