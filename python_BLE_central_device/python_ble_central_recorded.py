@@ -5,8 +5,12 @@ import time
 
 MOTOR_UUID = 'f22535de-5375-44bd-8ca9-d0ea9ff9e410'
 
-file_commands = 'commands/commands_arm_collection.json'
+file_commands = 'commands/commands_Shotgun.json'
 
+
+'''
+commands_arm_collection
+'''
 '''
 commands_side_center.json
 commands_linear_stroke.json
