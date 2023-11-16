@@ -2,10 +2,11 @@ import asyncio
 from bleak import BleakScanner, BleakClient
 import json
 import time
+import threading
 
 MOTOR_UUID = 'f22535de-5375-44bd-8ca9-d0ea9ff9e410'
 
-file_commands = 'commands/commands_Shotgun.json'
+file_commands = 'commands/commands_arm_horizontal_rotation.json'
 
 
 '''
@@ -17,6 +18,23 @@ commands_linear_stroke.json
 commands_vertical_stroke.json
 commands_cross_pattern.json
 '''
+
+import pygame
+
+# def play_wav_file():
+#     audio_file = "haps_files/drum.wav"
+#     pygame.init()
+#     pygame.mixer.init()
+
+#     try:
+#         sound = pygame.mixer.Sound(audio_file)
+#         sound.play()
+#         pygame.time.wait(int(sound.get_length() * 1000))  # Wait for the sound to finish
+#     except pygame.error as e:
+#         print(f"An error occurred: {e}")
+#     finally:
+#         pygame.quit()
+
 
 # async def setMotor(client):
 #     while True:
@@ -34,6 +52,9 @@ commands_cross_pattern.json
 #         await client.write_gatt_char(MOTOR_UUID,  output)
 
 async def sendCommands(client):
+    # audio_thread = threading.Thread(target=play_wav_file)
+    # audio_thread.start()
+
     with open(file_commands) as f:
         commands = f.readlines()
         output_string = ''

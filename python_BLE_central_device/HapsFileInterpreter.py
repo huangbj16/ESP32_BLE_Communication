@@ -32,12 +32,14 @@ def extract_vibration_commands(json_data):
             vibration_array.append({"time": np.round(v_data["m_time"], 2), "duty": np.round(v_data["m_value"] * 16)})
     else:
         print("The provided JSON does not contain the required structure.")
-    print(transient_array)
-    print(vibration_array)
+    # print(transient_array)
+    # print(vibration_array)
     return transient_array, vibration_array
 
+haps_name = "drum30"
+
 # Load the JSON data from a file or a string
-json_file_path = 'haps_files/Shotgun.haps'  # Replace with your JSON file path
+json_file_path = 'haps_files/'+haps_name+'.haps'  # Replace with your JSON file path
 with open(json_file_path, 'r') as file:
     data = json.load(file)
     transient_array, vibration_array = extract_vibration_commands(data)
@@ -48,7 +50,7 @@ for t_data in transient_array:
     vibration_array.append(t_data)
 vibration_array.sort(key=lambda x: x['time'])
 
-print("combined vibration\n", vibration_array)
+# print("combined vibration\n", vibration_array)
 
 unique_entries = {}
 for entry in vibration_array:
@@ -59,7 +61,7 @@ for entry in vibration_array:
 
 vibration_array = list(unique_entries.values())
 
-print("cleaned vibration\n", vibration_array)
+# print("cleaned vibration\n", vibration_array)
 
 # turn into our command types, also add interpolation.
 
@@ -125,9 +127,9 @@ def interpolate_commands(commands, interval=0.05, motor_addr = 15):
 # Interpolate the commands
 commands = interpolate_commands(vibration_array)
 
-print(commands)
+# print(commands)
 
-file_path = 'commands/commands_Shotgun.json'
+file_path = 'commands/commands_'+haps_name+'.json'
 with open(file_path, "w") as file:
     counter = 0
     for command in commands:
