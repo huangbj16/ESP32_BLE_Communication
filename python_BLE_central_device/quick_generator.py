@@ -667,28 +667,7 @@ def gaussian_timestamps(mean, sd, levels):
 
 
 
-# start_time = 1.0
-# vib_duration = 0.2
-# motor_num = 10
-# col_num = 4
-# motor_addrs_array = [
-#     np.arange(1, 11, step=1, dtype=np.int),
-#     np.arange(20, 10, step=-1, dtype=np.int),
-#     np.arange(31, 41, step=1, dtype=np.int),
-#     np.arange(50, 40, step=-1, dtype=np.int)
-# ]
-# motor_addrs = np.array(motor_addrs_array)
-# print(motor_addrs)
-
-# for repeat in range(5):
-#     for i in range(col_num):
-#         for j in range(3):
-#             vib_time = start_time+(repeat*col_num+i)*vib_duration
-#             commands.append({"time":round(vib_time, 2), "addr":int(motor_addrs[i][5+j]), "mode":1, "duty":15, "freq":2, "wave":0})
-#             commands.append({"time":round(vib_time+vib_duration, 2), "addr":int(motor_addrs[i][5+j]), "mode":0, "duty":15, "freq":2, "wave":0})
-
-
-start_time = 1.0
+start_time = 67.0
 vib_duration = 0.2
 motor_num = 10
 col_num = 4
@@ -702,18 +681,39 @@ motor_addrs = np.array(motor_addrs_array)
 print(motor_addrs)
 
 for repeat in range(5):
-    for i in range(5):
-        motor_ids = motor_addrs[:, i]
-        vib_time = start_time+(repeat*12+i)*vib_duration
-        end_time = start_time+(repeat*12+10-i)*vib_duration
-        for j in motor_ids:
-            commands.append({"time":round(vib_time, 2), "addr":int(j), "mode":1, "duty":15, "freq":2, "wave":0})
-            commands.append({"time":round(end_time, 2), "addr":int(j), "mode":0, "duty":15, "freq":2, "wave":0})                      
+    for i in range(col_num):
+        for j in range(3):
+            vib_time = start_time+(repeat*col_num+i)*vib_duration
+            commands.append({"time":round(vib_time, 2), "addr":int(motor_addrs[i][5+j]), "mode":1, "duty":15, "freq":2, "wave":0})
+            commands.append({"time":round(vib_time+vib_duration, 2), "addr":int(motor_addrs[i][5+j]), "mode":0, "duty":15, "freq":2, "wave":0})
+
+
+# start_time = 50.0
+# vib_duration = 0.2
+# motor_num = 10
+# col_num = 4
+# motor_addrs_array = [
+#     np.arange(1, 11, step=1, dtype=np.int),
+#     np.arange(20, 10, step=-1, dtype=np.int),
+#     np.arange(31, 41, step=1, dtype=np.int),
+#     np.arange(50, 40, step=-1, dtype=np.int)
+# ]
+# motor_addrs = np.array(motor_addrs_array)
+# print(motor_addrs)
+
+# for repeat in range(5):
+#     for i in range(5):
+#         motor_ids = motor_addrs[:, i]
+#         vib_time = start_time+(repeat*12+i)*vib_duration
+#         end_time = start_time+(repeat*12+10-i)*vib_duration
+#         for j in motor_ids:
+#             commands.append({"time":round(vib_time, 2), "addr":int(j), "mode":1, "duty":15, "freq":2, "wave":0})
+#             commands.append({"time":round(end_time, 2), "addr":int(j), "mode":0, "duty":15, "freq":2, "wave":0})                      
 
 commands.sort(key=lambda x: x['addr'])
 commands.sort(key=lambda x: x['time'])
 
-file_path = 'commands/commands_arm_upanddown.json'
+file_path = 'commands/commands_arm_temp.json'
 with open(file_path, "w") as file:
     counter = 0
     for command in commands:

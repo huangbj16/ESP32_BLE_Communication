@@ -4,9 +4,9 @@ import json
 import time
 import threading
 
-MOTOR_UUID = 'f22535de-5375-44bd-8ca9-d0ea9ff9e410'
+MOTOR_UUID = 'f22535de-5375-44bd-8ca9-d0ea9ff9e415'
 
-file_commands = 'commands/commands_arm_horizontal_rotation.json'
+file_commands = 'commands/commands_arm_collection.json'
 
 
 '''
@@ -19,7 +19,7 @@ commands_vertical_stroke.json
 commands_cross_pattern.json
 '''
 
-import pygame
+# import pygame
 
 # def play_wav_file():
 #     audio_file = "haps_files/drum.wav"
@@ -101,7 +101,7 @@ async def main():
     for d in devices:
         print('device name = ', d.name)
         if d.name != None:
-            if d.name == 'FEATHER_ESP32':
+            if d.name == 'FEATHER_ESP32_Backup':
                 print('feather device found!!!')
                 async with BleakClient(d.address) as client:
                     print(f'BLE connected to {d.address}')
