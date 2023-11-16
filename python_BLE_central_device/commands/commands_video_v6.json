@@ -1,0 +1,4 @@
+{"time": 1.0, "addr": 0, "mode": 1, "duty": 1, "freq": 3, "wave": 1}
+{"time": 2.0, "addr": 1, "mode": 1, "duty": 7, "freq": 2, "wave": 0}
+{"time": 3.0, "addr": 1, "mode": 0, "duty": 7, "freq": 2, "wave": 0}
+{"time": 4.0, "addr": 0, "mode": 0, "duty": 1, "freq": 3, "wave": 1}
