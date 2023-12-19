@@ -4,7 +4,7 @@ import json
 import time
 import threading
 
-MOTOR_UUID = 'f22535de-5375-44bd-8ca9-d0ea9ff9e415'
+MOTOR_UUID = 'f22535de-5375-44bd-8ca9-d0ea9ff9e410'
 
 file_commands = 'commands/commands_arm_collection.json'
 
@@ -101,7 +101,7 @@ async def main():
     for d in devices:
         print('device name = ', d.name)
         if d.name != None:
-            if d.name == 'FEATHER_ESP32_Backup':
+            if d.name == 'FEATHER_ESP32':
                 print('feather device found!!!')
                 async with BleakClient(d.address) as client:
                     print(f'BLE connected to {d.address}')
