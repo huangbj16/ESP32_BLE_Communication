@@ -16,7 +16,7 @@
 // https://www.uuidgenerator.net/
 
 #define SERVICE_UUID        "f10016f6-542b-460a-ac8b-bbb0b2010599"
-#define CHARACTERISTIC_UUID "f22535de-5375-44bd-8ca9-d0ea9ff9e415"
+#define CHARACTERISTIC_UUID "f22535de-5375-44bd-8ca9-d0ea9ff9e410"
 #define CURRENTSENSING_UUID "640b8bf5-3c88-44f6-95e0-f5813b390d73"
 BLECharacteristic *csCharacteristic;
 
@@ -204,7 +204,7 @@ void setup() {
   //  strip.show();
 
   //BLE setup
-  BLEDevice::init("FEATHER_ESP32_Backup");
+  BLEDevice::init("FEATHER_ESP32");
   BLEServer *pServer = BLEDevice::createServer();
   pServer->setCallbacks(new MyServerCallbacks());
   BLEService *pService = pServer->createService(SERVICE_UUID);
