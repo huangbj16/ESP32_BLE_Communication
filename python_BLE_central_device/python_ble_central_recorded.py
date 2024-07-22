@@ -15,7 +15,7 @@ commands_arm_collection
 '''
 commands_side_center.json
 commands_linear_stroke.json
-commands_vertical_stroke.json
+commands_vertical_stroke.jsonpow
 commands_cross_pattern.json
 '''
 

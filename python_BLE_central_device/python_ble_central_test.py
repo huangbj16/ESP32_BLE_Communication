@@ -36,8 +36,8 @@ async def main():
     for d in devices:
         print('device name = ', d.name)
         if d.name != None:
-            if d.name == 'FEATHER_ESP32':
-                print('feather device found!!!')
+            if d.name == 'QT Py ESP32-S3':
+                print('central unit BLE found!!!')
                 async with BleakClient(d.address) as client:
                     print(f'BLE connected to {d.address}')
                     val = await client.read_gatt_char(MOTOR_UUID)

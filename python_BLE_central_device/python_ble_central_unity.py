@@ -36,7 +36,7 @@ async def main(socket_conn):
                     print(f'BLE connected to {d.address}')
                     val = await client.read_gatt_char(MOTOR_UUID)
                     print('Motor read = ', val)
-                    for i in range(2):
+                    for i in range(6):
                         buck_addr = i*30
                         command = {
                             'addr':buck_addr, 

@@ -30,7 +30,7 @@ const int subchain_num = 8;
 uint32_t colors[5];
 int color_num = 5;
 
-EspSoftwareSerial::UART serial_group[12];
+EspSoftwareSerial::UART serial_group[8];
 
 const int maxJsonCount = 7; // Maximum number of JSON objects you expect
 /*
@@ -71,8 +71,8 @@ class MyCharacteristicCallbacks: public BLECharacteristicCallbacks {
       // get command
       std::string value = pCharacteristic->getValue();
       String value_str = value.c_str();
-      Serial.print(millis());
-      Serial.print("receive data = ");
+//      Serial.print(millis());
+//      Serial.print("receive data = ");
       Serial.println(value_str);
       // split the receive data into JSONs
       String* jsonArray = splitJsons(value_str);
@@ -115,10 +115,12 @@ class MyCharacteristicCallbacks: public BLECharacteristicCallbacks {
           uint8_t message[2];
           message[0] = ((send_motor_addr) << 1) + is_start;
           message[1] = 128 + (duty << 3) + (freq << 1) + wave;
+//          Serial.print(message[0]);
+//          Serial.println(message[1]);
           serial_group[serial_group_number].write(message, 2);
-          //          Serial.println(serial_group_number);
-          //          Serial.println(send_motor_addr);
-          //          Serial.println(message[1]);
+//                    Serial.println(serial_group_number);
+//                    Serial.println(send_motor_addr);
+//                    Serial.println(message[1]);
           //          strip.setPixelColor(0, colors[motor_addr % color_num]);
           //          strip.show();
         }
