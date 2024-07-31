@@ -65,17 +65,30 @@ async def setMotor(client):
             #     count += 1
             # time_recv = time.time()
             # print('Elapsed time = ', time_recv-time_sent)
+            # elapsed_time_array[i] = time_recv-time_sent
+
+            while True:
+                print('waiting for data...')
+                data_recv = await client.read_gatt_char(CURRENTSENSING_UUID)
+                # decode the bytearray to integer
+                data_recv = int.from_bytes(data_recv, byteorder='little')
+                print("data_recv = ", data_recv)
+                if data_recv == i+1:
+                    time_recv = time.time()
+                    print('Elapsed time = ', time_recv-time_sent)
+                    elapsed_time_array[i] = time_recv-time_sent
+                    break
+
             
-            ### one BLE loop latency
-            await client.start_notify(CURRENTSENSING_UUID, notification_handler)
-            while not is_notified:
-                pass
-            print('Elapsed time = ', time_recv-time_sent)
-            elapsed_time_array[i] = time_recv-time_sent
-            is_notified = False
+            ## one BLE loop latency
+            # await client.start_notify(CURRENTSENSING_UUID, notification_handler)
+            # while not is_notified:
+            #     pass
+            # print('Elapsed time = ', time_recv-time_sent)
+            # elapsed_time_array[i] = time_recv-time_sent
+            # is_notified = False
         print('Average elapsed time = ', np.mean(elapsed_time_array))
-        print('Standard deviation of elapsed time = ', np.std(elapsed_time_array))
-        
+        print('Standard deviation of elapsed time = ', np.std(elapsed_time_array))   
 
 async def main():
     devices = await BleakScanner.discover()
