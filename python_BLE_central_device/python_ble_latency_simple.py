@@ -24,12 +24,15 @@ async def test_latency(client):
         await client.write_gatt_char(uuid, output)
         # response = await client.read_gatt_char(uuid)
         # print(f"Received: {response.decode()}")
-
         end_time = time.perf_counter()  # End timing
+
+        # while (time.perf_counter() - start_time) < 0.005:
+        #     pass
         print(f"{i+1} Round-trip time: {(end_time - start_time) * 1000:.2f} ms")
         round_time_array[i] = (end_time - start_time) * 1000
     print(f"Average round-trip time: {np.mean(round_time_array):.2f} ms")
     print(f"Round-trip time standard deviation: {np.std(round_time_array):.2f} ms")
+    time.sleep(1)
 
 
 async def main():
@@ -41,6 +44,8 @@ async def main():
                 print('central unit BLE found!!!')
                 async with BleakClient(d.address) as client:
                     print(f'BLE connected to {d.address}')
+                    current_mtu = client.mtu_size
+                    print(f"Current MTU: {current_mtu}")
                     await test_latency(client)
 
 asyncio.run(main())
