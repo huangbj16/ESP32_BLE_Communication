@@ -29,59 +29,58 @@ const int subchain_num = 4;
 uint32_t colors[5];
 int color_num = 5;
 int global_counter = 0;
-DynamicJsonDocument jsonCommand(1024);
-const int maxJsonCount = 7; // Maximum number of JSON objects you expect
-String jsonArray[maxJsonCount];
-int actualJsonCount = 0;
 
 EspSoftwareSerial::UART serial_group[4];
 
-/*
-   this function takes in a String that contains multiple JSONs, split them by '\n', and return the String array
-*/
-void splitJsons(const String& jsonString, String jsonArray[], int& jsonCount) {
-  int startIndex = 0;
-  int endIndex = 0;
-  jsonCount = 0; // Counter for the number of JSON objects found
-
-  while (startIndex < jsonString.length() && jsonCount < maxJsonCount) {
-    // Find the end index of the JSON object
-    endIndex = jsonString.indexOf('\n', startIndex);
-    if (endIndex == -1) {
-      endIndex = jsonString.length();
-    }
-
-    // Extract the JSON object and store it in the array
-    jsonArray[jsonCount] = jsonString.substring(startIndex, endIndex);
-
-    // Move to the next JSON object
-    jsonCount++;
-    startIndex = endIndex + 1;
-  }
-}
-
 class MyCharacteristicCallbacks: public BLECharacteristicCallbacks {
   void onWrite(BLECharacteristic *pCharacteristic) {
-    // Get command
-    String value_str = pCharacteristic->getValue();
-    unsigned long timestamp = millis(); // Get current time in milliseconds
-    Serial.print("Timestamp: ");
-    Serial.print(timestamp);
-    Serial.print(" ms, # = ");
-    Serial.println(++global_counter);
+      String value = pCharacteristic->getValue();
+      if (value.length() % 3 == 0) {  // Ensure the length is a multiple of 3 bytes
+          unsigned long timestamp = millis(); // Get current time in milliseconds
+          Serial.print("Timestamp: ");
+          Serial.print(timestamp);
+          Serial.print(" ms, Data = ");
+          Serial.print(value.length());
+          Serial.print(" bytes, # = ");
+          Serial.println(++global_counter);
   
-    // Split the receive data into JSONs
-    splitJsons(value_str, jsonArray, actualJsonCount);
+          for (int i = 0; i < value.length(); i += 3) {
+              uint8_t byte1 = value[i];
+              uint8_t byte2 = value[i+1];
+              uint8_t byte3 = value[i+2];
   
-    // Decode and process JSON
-    for (int i = 0; i < actualJsonCount; i++) {
-      if (!jsonArray[i].isEmpty()) {
-        Serial.print("send command = ");
-        Serial.println(jsonArray[i]);
-        deserializeJson(jsonCommand, jsonArray[i]);
-        sendCommand(jsonCommand);
+              if (byte1 == 0xFF) continue; // Skip if the first byte of the command is 0xFF
+  
+              int serial_group_number = (byte1 >> 2) & 0x0F;
+              int is_start = byte1 & 0x01;
+              int addr = byte2 & 0x3F;
+              int duty = (byte3 >> 3) & 0x0F;
+              int freq = (byte3 >> 1) & 0x03;
+              int wave = byte3 & 0x01;
+  
+              // Print received values for debugging
+              // Uncomment the following lines if you want to output the values for debugging purposes
+              
+              Serial.print("Received: ");
+//              Serial.print("SG: "); Serial.print(serial_group_number);
+//              Serial.print(", Mode: "); Serial.print(is_start);
+              Serial.print(", Addr: "); Serial.println(addr);
+//              Serial.print(", Duty: "); Serial.print(duty);
+//              Serial.print(", Freq: "); Serial.print(freq);
+//              Serial.print(", Wave: "); Serial.println(wave);
+              
+              
+              sendCommand(serial_group_number, addr, is_start, duty, freq, wave);
+          }
       }
-    }
+      else{
+          unsigned long timestamp = millis(); // Get current time in milliseconds
+          Serial.print("Timestamp: ");
+          Serial.print(timestamp);
+          Serial.print(" ms, Data = ");
+          Serial.print(value.length());
+          Serial.print(", WRONG LENGTH!!!!!!!!!!!!!!!!");
+      }
   }
 
 
@@ -94,56 +93,23 @@ class MyCharacteristicCallbacks: public BLECharacteristicCallbacks {
             'wave':0, # default
         }
     */
-    void sendCommand(DynamicJsonDocument& command) {
-      int motor_addr = command["addr"].as<int>();
-      int send_motor_addr = motor_addr % 30;
-      int serial_group_number = motor_addr / 30;
-      int is_start = command["mode"].as<int>();
-      int duty = command["duty"].as<int>();
-      int freq = command["freq"].as<int>();
-      int wave = command["wave"].as<int>();
-      if (motor_addr >= 0 && motor_addr < 256) { // maximum number of motor on one chain
-        if (is_start == 1) { //start command, two bytes
-          uint8_t message[2];
-          message[0] = ((send_motor_addr) << 1) + is_start;
-          message[1] = 128 + (duty << 3) + (freq << 1) + wave;
-//          Serial.print(message[0]);
-//          Serial.println(message[1]);
-          serial_group[serial_group_number].write(message, 2);
-//                    Serial.println(serial_group_number);
-//                    Serial.println(send_motor_addr);
-//                    Serial.println(message[1]);
-          //          strip.setPixelColor(0, colors[motor_addr % color_num]);
-          //          strip.show();
-        }
-        else { //stop command, only one byte
-          uint8_t message = (send_motor_addr << 1) + is_start;
-          serial_group[serial_group_number].write(message);
-          //          strip.setPixelColor(0, 0, 0, 0);
-          //          strip.show();
-        }
-      }
-      else {
-        Serial.println("motor address is not in range...");
+    void sendCommand(int serial_group_number, int motor_addr, int is_start, int duty, int freq, int wave) {
+      uint8_t message = motor_addr;
+      serial_group[serial_group_number].write(message);
+      return;
+      if (is_start == 1) { // Start command, two bytes
+        uint8_t message[2];
+        message[0] = (motor_addr << 1) | is_start;
+        message[1] = 0x80 | (duty << 3) | (freq << 1) | wave;
+        serial_group[serial_group_number].write(message, 2);
+      } else { // Stop command, only one byte
+        uint8_t message = (motor_addr << 1) | is_start;
+        serial_group[serial_group_number].write(&message, 1);
       }
     }
 };
 
 class MyServerCallbacks: public BLEServerCallbacks {
-//    void onConnect(BLEServer* pServer, ) {
-//      Serial.println("connected!");
-//      std::map<uint16_t, conn_status_t> peerDevices = pServer->getPeerDevices(false);
-//      Serial.println(peerDevices.size());
-//      conn_status_t deviceConn = peerDevices[0];
-//      Serial.println(sizeof(void*));
-//      Serial.println(uint32_t(deviceConn.peer_device));
-//      Serial.println(deviceConn.connected);
-//      Serial.println(deviceConn.mtu);
-//      BLEClient *client = (BLEClient*)deviceConn.peer_device;
-//      Serial.println(client->getPeerAddress().toString().c_str());
-//      Serial.println(BLEDevice::toString().c_str());
-//      deviceConnected = true;
-//    };
     void onConnect(BLEServer* pServer, esp_ble_gatts_cb_param_t *param){
         Serial.println("connected!");
         Serial.println(BLEDevice::toString().c_str());
@@ -164,7 +130,7 @@ class MyServerCallbacks: public BLEServerCallbacks {
 
 
 void setup() {
-  Serial.begin(115200);//even parity check
+  Serial.begin(500000);//even parity check
   //  pinMode(8, OUTPUT);
   //  pinMode(7, INPUT);
   //  Serial1.begin(115200, SERIAL_8E1);// Hardware Serial
@@ -173,7 +139,7 @@ void setup() {
   for (int i = 0; i < subchain_num; ++i) {
     Serial.print("initialize uart on ");
     Serial.println(subchain_pins[i]);
-    serial_group[i].begin(115200, SWSERIAL_8E1, -1, subchain_pins[i], false);
+    serial_group[i].begin(500000, SWSERIAL_8E1, -1, subchain_pins[i], false);
     serial_group[i].enableIntTx(false);
     if (!serial_group[i]) { // If the object did not initialize, then its configuration is invalid
       Serial.println("Invalid EspSoftwareSerial pin configuration, check config");
@@ -187,11 +153,11 @@ void setup() {
   digitalWrite(LED_BUILTIN, HIGH);
   pinMode(2, OUTPUT);
   digitalWrite(2, HIGH);
-    strip.begin();
-    strip.setBrightness(20);
-    colors[0] = strip.Color(0, 255, 0);
-    strip.setPixelColor(0, colors[0]);
-    strip.show();
+  strip.begin();
+  strip.setBrightness(20);
+  colors[0] = strip.Color(0, 255, 0);
+  strip.setPixelColor(0, colors[0]);
+  strip.show();
 
   //BLE setup
   BLEDevice::init("QT Py ESP32-S3");
@@ -234,5 +200,5 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
 //  csCharacteristic->setValue(String(analogRead(39)).c_str());
-  delay(1000);
+//  delay(1000);
 }
