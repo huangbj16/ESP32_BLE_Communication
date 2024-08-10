@@ -38,7 +38,7 @@ async def setMotor(client):
                 'addr':motor_addr,
                 'mode':start_or_stop,
                 'duty':duty, # default
-                'freq':3, # default
+                'freq':2, # default
                 'wave':0, # default
             }
         command = bytearray([])

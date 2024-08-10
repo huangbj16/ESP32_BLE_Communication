@@ -12,6 +12,7 @@ First byte: 00XXXX0Y, X is serial group number, Y is mode,
 Second byte: 01XXXXXX, X is address,
 Third byte: 1XXXXYYZ, X is duty, Y is frequency, Z is wave.
 '''
+
 def create_command(addr, mode, duty, freq, wave):
     serial_group = addr // 30
     serial_addr = addr % 30
@@ -27,8 +28,8 @@ async def test_latency(client):
     duty = 7
     freq = 2
     wave = 0
-    round_time_array = np.zeros(10000)
-    for i in range(10000):
+    round_time_array = np.zeros(100)
+    for i in range(100):
         # command = command + create_command(addr, mode, duty, freq, wave)
         # addr = (32 + i) % 120
         for j in range(3):
@@ -41,9 +42,9 @@ async def test_latency(client):
             start_time = time.perf_counter()  # Start timing
             await client.write_gatt_char(uuid, command)
             # response = await client.read_gatt_char(uuid)
-            # print(f"Received: {response.decode()}")
+            # print(f"Received: ", response)
 
-            while (time.perf_counter() - start_time) < 0.0025:
+            while (time.perf_counter() - start_time) < 0.0046:
                 pass
             end_time = time.perf_counter()  # End timing
             print(f"{i+1} Round-trip time: {(end_time - start_time) * 1000:.2f} ms")
