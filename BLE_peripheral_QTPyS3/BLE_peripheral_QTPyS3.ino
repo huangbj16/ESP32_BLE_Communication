@@ -61,10 +61,10 @@ class MyCharacteristicCallbacks: public BLECharacteristicCallbacks {
               // Print received values for debugging
               // Uncomment the following lines if you want to output the values for debugging purposes
               
-              Serial.print("Received: ");
+//              Serial.print("Received: ");
 //              Serial.print("SG: "); Serial.print(serial_group_number);
 //              Serial.print(", Mode: "); Serial.print(is_start);
-              Serial.print(", Addr: "); Serial.println(addr);
+//              Serial.print(", Addr: "); Serial.print(addr);
 //              Serial.print(", Duty: "); Serial.print(duty);
 //              Serial.print(", Freq: "); Serial.print(freq);
 //              Serial.print(", Wave: "); Serial.println(wave);
@@ -94,9 +94,9 @@ class MyCharacteristicCallbacks: public BLECharacteristicCallbacks {
         }
     */
     void sendCommand(int serial_group_number, int motor_addr, int is_start, int duty, int freq, int wave) {
-      uint8_t message = motor_addr;
-      serial_group[serial_group_number].write(message);
-      return;
+//      uint8_t message = motor_addr;
+//      serial_group[serial_group_number].write(message);
+//      return;
       if (is_start == 1) { // Start command, two bytes
         uint8_t message[2];
         message[0] = (motor_addr << 1) | is_start;
@@ -139,7 +139,7 @@ void setup() {
   for (int i = 0; i < subchain_num; ++i) {
     Serial.print("initialize uart on ");
     Serial.println(subchain_pins[i]);
-    serial_group[i].begin(500000, SWSERIAL_8E1, -1, subchain_pins[i], false);
+    serial_group[i].begin(115200, SWSERIAL_8E1, -1, subchain_pins[i], false);
     serial_group[i].enableIntTx(false);
     if (!serial_group[i]) { // If the object did not initialize, then its configuration is invalid
       Serial.println("Invalid EspSoftwareSerial pin configuration, check config");

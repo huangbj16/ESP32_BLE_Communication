@@ -597,19 +597,19 @@ commands = []
 
 ### phantom gaussian
 
-from scipy.stats import norm
+# from scipy.stats import norm
 
-def gaussian_timestamps(mean, sd, levels):
-    duty_values = np.arange(1, levels+1, 1, dtype=np.float32)
-    gaussian = norm(loc=mean, scale=sd)
-    duty_norms = duty_values*gaussian.pdf(mean)/np.max(duty_values)
-    x_values = np.arange(mean-3*sd, mean+0.01, step=0.01)
-    y_values = gaussian.pdf(x_values)
-    timestamps = np.zeros(levels, dtype=np.float32)
-    for i in range(levels):
-        timestamps[i] = x_values[np.argmin(np.abs(y_values-duty_norms[i]))]
-    print(timestamps)
-    return timestamps.tolist()
+# def gaussian_timestamps(mean, sd, levels):
+#     duty_values = np.arange(1, levels+1, 1, dtype=np.float32)
+#     gaussian = norm(loc=mean, scale=sd)
+#     duty_norms = duty_values*gaussian.pdf(mean)/np.max(duty_values)
+#     x_values = np.arange(mean-3*sd, mean+0.01, step=0.01)
+#     y_values = gaussian.pdf(x_values)
+#     timestamps = np.zeros(levels, dtype=np.float32)
+#     for i in range(levels):
+#         timestamps[i] = x_values[np.argmin(np.abs(y_values-duty_norms[i]))]
+#     print(timestamps)
+#     return timestamps.tolist()
 
 # ## 2cm
 # start_time = 1.0
@@ -667,25 +667,25 @@ def gaussian_timestamps(mean, sd, levels):
 
 
 
-start_time = 67.0
-vib_duration = 0.2
-motor_num = 10
-col_num = 4
-motor_addrs_array = [
-    np.arange(1, 11, step=1, dtype=np.int),
-    np.arange(20, 10, step=-1, dtype=np.int),
-    np.arange(31, 41, step=1, dtype=np.int),
-    np.arange(50, 40, step=-1, dtype=np.int)
-]
-motor_addrs = np.array(motor_addrs_array)
-print(motor_addrs)
+# start_time = 67.0
+# vib_duration = 0.2
+# motor_num = 10
+# col_num = 4
+# motor_addrs_array = [
+#     np.arange(1, 11, step=1, dtype=np.int),
+#     np.arange(20, 10, step=-1, dtype=np.int),
+#     np.arange(31, 41, step=1, dtype=np.int),
+#     np.arange(50, 40, step=-1, dtype=np.int)
+# ]
+# motor_addrs = np.array(motor_addrs_array)
+# print(motor_addrs)
 
-for repeat in range(5):
-    for i in range(col_num):
-        for j in range(3):
-            vib_time = start_time+(repeat*col_num+i)*vib_duration
-            commands.append({"time":round(vib_time, 2), "addr":int(motor_addrs[i][5+j]), "mode":1, "duty":15, "freq":2, "wave":0})
-            commands.append({"time":round(vib_time+vib_duration, 2), "addr":int(motor_addrs[i][5+j]), "mode":0, "duty":15, "freq":2, "wave":0})
+# for repeat in range(5):
+#     for i in range(col_num):
+#         for j in range(3):
+#             vib_time = start_time+(repeat*col_num+i)*vib_duration
+#             commands.append({"time":round(vib_time, 2), "addr":int(motor_addrs[i][5+j]), "mode":1, "duty":15, "freq":2, "wave":0})
+#             commands.append({"time":round(vib_time+vib_duration, 2), "addr":int(motor_addrs[i][5+j]), "mode":0, "duty":15, "freq":2, "wave":0})
 
 
 # start_time = 50.0
@@ -710,10 +710,39 @@ for repeat in range(5):
 #             commands.append({"time":round(vib_time, 2), "addr":int(j), "mode":1, "duty":15, "freq":2, "wave":0})
 #             commands.append({"time":round(end_time, 2), "addr":int(j), "mode":0, "duty":15, "freq":2, "wave":0})                      
 
+
+'''
+test commands for high refresh rate control
+command = {"time":0, "addr":1, "mode":1, "duty":1, "freq":2, "wave":0}
+start_time = 2.0, intensity (i.e., duty) levels = [0 -> 15]
+start from 2.0s, intensity = 0,
+increase intensity by 1 every 0.1s, until intensity = 15,
+stay at intensity 15 for 0.5s, and then decrease intensity by 1 every 0.01s, until intensity = 0
+repeat this process for 5 times
+'''
+start_time = 2.0
+duration = 0.01
+lapse = 0.05
+intensity_levels = 16
+offset = duration*intensity_levels*2 + lapse
+for i in range(5):
+    for j in range(intensity_levels):
+        commands.append({"time":round(start_time+i*offset+j*duration, 2), "addr":1, "mode":1, "duty":j, "freq":2, "wave":0})
+    commands.append({"time":round(start_time+i*offset+intensity_levels*duration, 2), "addr":1, "mode":0, "duty":15, "freq":2, "wave":0})
+    for j in range(intensity_levels-1):
+        commands.append({"time":round(start_time+i*offset+intensity_levels*duration+lapse+j*duration, 2), "addr":1, "mode":1, "duty":15-j-1, "freq":2, "wave":0})
+# add stop command at the end, mode = 0
+commands.append({"time":round(start_time+5*offset+intensity_levels*duration+lapse+(intensity_levels-1)*duration, 2), "addr":1, "mode":0, "duty":0, "freq":2, "wave":0})
+    
+
+'''
+Export the commands to a json file
+'''
+
 commands.sort(key=lambda x: x['addr'])
 commands.sort(key=lambda x: x['time'])
 
-file_path = 'commands/commands_arm_temp.json'
+file_path = 'commands/commands_up_and_down.json'
 with open(file_path, "w") as file:
     counter = 0
     for command in commands:
