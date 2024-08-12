@@ -6,7 +6,7 @@ import threading
 
 MOTOR_UUID = 'f22535de-5375-44bd-8ca9-d0ea9ff9e410'
 
-file_commands = 'commands/commands_up_and_down.json'
+file_commands = 'commands/commands_gradual_rise_and_fall.json'
 
 
 '''
@@ -80,10 +80,10 @@ async def sendCommands(client):
             # await asyncio.sleep(ts-current_time)
             while (time.perf_counter()-time_offset) < ts:
                 pass
-            actual_sleep_duration = time.perf_counter() - start
-            print(f"{start}, Actual sleep duration: {actual_sleep_duration} seconds")
-            print('commands = \n', command_output)
-            print('command len = ', len(command_output))
+            # actual_sleep_duration = time.perf_counter() - start
+            # print(f"{start}, Actual sleep duration: {actual_sleep_duration} seconds")
+            # print('commands = \n', command_output)
+            # print('command len = ', len(command_output))
             await client.write_gatt_char(MOTOR_UUID,  command_output)
             
 

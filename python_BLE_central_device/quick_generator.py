@@ -720,20 +720,56 @@ increase intensity by 1 every 0.1s, until intensity = 15,
 stay at intensity 15 for 0.5s, and then decrease intensity by 1 every 0.01s, until intensity = 0
 repeat this process for 5 times
 '''
-start_time = 2.0
-duration = 0.01
-lapse = 0.05
-intensity_levels = 16
-offset = duration*intensity_levels*2 + lapse
-for i in range(5):
-    for j in range(intensity_levels):
-        commands.append({"time":round(start_time+i*offset+j*duration, 2), "addr":1, "mode":1, "duty":j, "freq":2, "wave":0})
-    commands.append({"time":round(start_time+i*offset+intensity_levels*duration, 2), "addr":1, "mode":0, "duty":15, "freq":2, "wave":0})
-    for j in range(intensity_levels-1):
-        commands.append({"time":round(start_time+i*offset+intensity_levels*duration+lapse+j*duration, 2), "addr":1, "mode":1, "duty":15-j-1, "freq":2, "wave":0})
-# add stop command at the end, mode = 0
-commands.append({"time":round(start_time+5*offset+intensity_levels*duration+lapse+(intensity_levels-1)*duration, 2), "addr":1, "mode":0, "duty":0, "freq":2, "wave":0})
+# start_time = 2.0
+# duration = 0.01
+# lapse = 0.01
+# intensity_levels = 16
+# offset = duration*intensity_levels*2 + lapse
+# for i in range(5):
+#     for j in range(intensity_levels):
+#         commands.append({"time":round(start_time+i*offset+j*duration, 2), "addr":1, "mode":1, "duty":j, "freq":2, "wave":0})
+#     # commands.append({"time":round(start_time+i*offset+intensity_levels*duration, 2), "addr":1, "mode":1, "duty":15, "freq":2, "wave":0})
+#     for j in range(intensity_levels-1):
+#         commands.append({"time":round(start_time+i*offset+intensity_levels*duration+lapse+j*duration, 2), "addr":1, "mode":1, "duty":15-j-1, "freq":2, "wave":0})
+# # add stop command at the end, mode = 0
+# commands.append({"time":round(start_time+5*offset+intensity_levels*duration+lapse+(intensity_levels-1)*duration, 2), "addr":1, "mode":0, "duty":0, "freq":2, "wave":0})
     
+
+'''
+start_time = 2.0
+turn the motor 1 on for 0.01s, and off for 0.01s, and repeat for 2 seconds
+'''
+# start_time = 2.0
+# duration = 0.01
+# for i in range(100):
+#     commands.append({"time":round(start_time+2*i*duration, 2), "addr":1, "mode":1, "duty":7, "freq":2, "wave":0})
+#     commands.append({"time":round(start_time+(2*i+1)*duration, 2), "addr":1, "mode":0, "duty":7, "freq":2, "wave":0})
+
+'''
+increase and immediate drop
+'''
+start_time = 2.0
+duration = 0.05  # Duration to change between intensity levels during the rise
+fall_duration = 0.01  # Duration to change between intensity levels during the fall
+intensity_levels = 16
+rise_time = duration * intensity_levels  # Time spent rising
+fall_time = fall_duration * intensity_levels  # Time spent falling
+pulse_interval = 0.5  # Interval between pulses
+offset = rise_time + fall_time + pulse_interval  # Total duration of one cycle including the interval
+num_cycles = 5  # Number of cycles to simulate
+
+for i in range(num_cycles):
+    cycle_start = start_time + i * offset
+    # Rising edge
+    for j in range(intensity_levels):
+        commands.append({"time": round(cycle_start + j * duration, 2), "addr": 1, "mode": 1, "duty": j, "freq": 2, "wave": 0})
+    # Falling edge
+    for j in range(intensity_levels):
+        commands.append({"time": round(cycle_start + rise_time + j * fall_duration, 2), "addr": 1, "mode": 1, "duty": intensity_levels - j - 1, "freq": 2, "wave": 0})
+# Optionally, add a stop command at the end with mode = 0
+commands.append({"time": round(start_time + num_cycles * offset, 2), "addr": 1, "mode": 0, "duty": 0, "freq": 2, "wave": 0})
+
+
 
 '''
 Export the commands to a json file
@@ -742,7 +778,7 @@ Export the commands to a json file
 commands.sort(key=lambda x: x['addr'])
 commands.sort(key=lambda x: x['time'])
 
-file_path = 'commands/commands_up_and_down.json'
+file_path = 'commands/commands_gradual_rise_and_fall.json'
 with open(file_path, "w") as file:
     counter = 0
     for command in commands:
