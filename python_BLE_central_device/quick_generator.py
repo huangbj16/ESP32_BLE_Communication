@@ -749,12 +749,11 @@ turn the motor 1 on for 0.01s, and off for 0.01s, and repeat for 2 seconds
 increase and immediate drop
 '''
 start_time = 2.0
-duration = 0.05  # Duration to change between intensity levels during the rise
-fall_duration = 0.01  # Duration to change between intensity levels during the fall
+duration = 0.02  # Duration to change between intensity levels during the rise
 intensity_levels = 16
 rise_time = duration * intensity_levels  # Time spent rising
-fall_time = fall_duration * intensity_levels  # Time spent falling
-pulse_interval = 0.5  # Interval between pulses
+fall_time = duration  # Time spent falling
+pulse_interval = 0.2  # Interval between pulses
 offset = rise_time + fall_time + pulse_interval  # Total duration of one cycle including the interval
 num_cycles = 5  # Number of cycles to simulate
 
@@ -764,8 +763,7 @@ for i in range(num_cycles):
     for j in range(intensity_levels):
         commands.append({"time": round(cycle_start + j * duration, 2), "addr": 1, "mode": 1, "duty": j, "freq": 2, "wave": 0})
     # Falling edge
-    for j in range(intensity_levels):
-        commands.append({"time": round(cycle_start + rise_time + j * fall_duration, 2), "addr": 1, "mode": 1, "duty": intensity_levels - j - 1, "freq": 2, "wave": 0})
+    commands.append({"time": round(cycle_start + rise_time + fall_time, 2), "addr": 1, "mode": 0, "duty": 0, "freq": 2, "wave": 0})
 # Optionally, add a stop command at the end with mode = 0
 commands.append({"time": round(start_time + num_cycles * offset, 2), "addr": 1, "mode": 0, "duty": 0, "freq": 2, "wave": 0})
 

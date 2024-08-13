@@ -6,7 +6,8 @@ import threading
 
 MOTOR_UUID = 'f22535de-5375-44bd-8ca9-d0ea9ff9e410'
 
-file_commands = 'commands/commands_gradual_rise_and_fall.json'
+# file_commands = 'commands/commands_gradual_rise_and_fall.json'
+file_commands = 'commands_meta_haptic/v-09-12-2-17/v-09-12-2-17.json'
 
 
 '''
