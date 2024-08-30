@@ -21,26 +21,27 @@ def create_command(addr, mode, duty, freq, wave):
 async def setMotor(client):
     while True:
         motor_addr = int(input('what is the next motor you want to control?'))
-        if motor_addr % 30 == 0:
-            duty = int(input('0-31 for intensity?'))
-            start_or_stop = int(input('1 for start and 0 for stop?'))
-            user_input = {
-                'addr':motor_addr,
-                'mode':start_or_stop,
-                'duty':(duty>>3), # default
-                'freq':(duty>>1) & 3, # default
-                'wave':(duty & 1), # default
-            }
-        else:
-            duty = int(input('0-15 for duty?'))
-            start_or_stop = int(input('1 for start and 0 for stop?'))
-            user_input = {
-                'addr':motor_addr,
-                'mode':start_or_stop,
-                'duty':duty, # default
-                'freq':2, # default
-                'wave':0, # default
-            }
+        # if motor_addr % 30 == 0:
+        #     duty = int(input('0-31 for intensity?'))
+        #     start_or_stop = int(input('1 for start and 0 for stop?'))
+        #     user_input = {
+        #         'addr':motor_addr,
+        #         'mode':start_or_stop,
+        #         'duty':(duty>>3), # default
+        #         'freq':(duty>>1) & 3, # default
+        #         'wave':(duty & 1), # default
+        #     }
+        # else:
+        duty = int(input('0-15 for duty?'))
+        freq = int(input('0-7 for frequency?'))
+        start_or_stop = int(input('1 for start and 0 for stop?'))
+        user_input = {
+            'addr':motor_addr,
+            'mode':start_or_stop,
+            'duty':duty, # default
+            'freq':freq>>1, # default
+            'wave':freq&1, # default
+        }
         command = bytearray([])
         command = command + create_command(user_input['addr'], user_input['mode'], user_input['duty'], user_input['freq'], user_input['wave'])
         command = command + bytearray([0xFF, 0xFF, 0xFF]) * 19 # Padding

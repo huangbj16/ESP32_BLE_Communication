@@ -1,0 +1,10 @@
+{"time": 2.0, "addr": 0, "mode": 1, "duty": 7, "freq": 2, "wave": 0}
+{"time": 2.2, "addr": 1, "mode": 1, "duty": 7, "freq": 2, "wave": 0}
+{"time": 2.4, "addr": 2, "mode": 1, "duty": 7, "freq": 2, "wave": 0}
+{"time": 2.6, "addr": 3, "mode": 1, "duty": 7, "freq": 2, "wave": 0}
+{"time": 2.8, "addr": 4, "mode": 1, "duty": 7, "freq": 2, "wave": 0}
+{"time": 8.0, "addr": 0, "mode": 0, "duty": 7, "freq": 2, "wave": 0}
+{"time": 8.2, "addr": 1, "mode": 0, "duty": 7, "freq": 2, "wave": 0}
+{"time": 8.4, "addr": 2, "mode": 0, "duty": 7, "freq": 2, "wave": 0}
+{"time": 8.6, "addr": 3, "mode": 0, "duty": 7, "freq": 2, "wave": 0}
+{"time": 8.8, "addr": 4, "mode": 0, "duty": 7, "freq": 2, "wave": 0}

@@ -748,24 +748,89 @@ turn the motor 1 on for 0.01s, and off for 0.01s, and repeat for 2 seconds
 '''
 increase and immediate drop
 '''
-start_time = 2.0
-duration = 0.02  # Duration to change between intensity levels during the rise
-intensity_levels = 16
-rise_time = duration * intensity_levels  # Time spent rising
-fall_time = duration  # Time spent falling
-pulse_interval = 0.2  # Interval between pulses
-offset = rise_time + fall_time + pulse_interval  # Total duration of one cycle including the interval
-num_cycles = 5  # Number of cycles to simulate
+# start_time = 2.0
+# duration = 0.02  # Duration to change between intensity levels during the rise
+# intensity_levels = 16
+# rise_time = duration * intensity_levels  # Time spent rising
+# fall_time = duration  # Time spent falling
+# pulse_interval = 0.2  # Interval between pulses
+# offset = rise_time + fall_time + pulse_interval  # Total duration of one cycle including the interval
+# num_cycles = 5  # Number of cycles to simulate
 
+# for i in range(num_cycles):
+#     cycle_start = start_time + i * offset
+#     # Rising edge
+#     for j in range(intensity_levels):
+#         commands.append({"time": round(cycle_start + j * duration, 2), "addr": 1, "mode": 1, "duty": j, "freq": 2, "wave": 0})
+#     # Falling edge
+#     commands.append({"time": round(cycle_start + rise_time + fall_time, 2), "addr": 1, "mode": 0, "duty": 0, "freq": 2, "wave": 0})
+# # Optionally, add a stop command at the end with mode = 0
+# commands.append({"time": round(start_time + num_cycles * offset, 2), "addr": 1, "mode": 0, "duty": 0, "freq": 2, "wave": 0})
+
+
+'''
+patterns for intensity and frequency test,
+start_time = 2.0s
+start from intensity = 0, and gradually increase intensity by 1 until intensity = 15;
+at each intensity level, vibrate for 5s and stop for 5s.
+'''
+# start_time = 2.0
+# duration = 3.0
+# lapse = 2.0
+# intensity_levels = 16
+# offset = duration + lapse
+# for i in range(intensity_levels):
+#     commands.append({"time": round(start_time + i * offset, 2), "addr": 3, "mode": 1, "duty": i, "freq": 1, "wave": 0})
+#     commands.append({"time": round(start_time + i * offset + duration, 2), "addr": 3, "mode": 0, "duty": i, "freq": 1, "wave": 0})
+
+
+'''
+do the same for frequency
+'''
+# start_time = 2.0
+# duration = 3.0
+# lapse = 2.0
+# frequency_levels = 8
+# offset = duration + lapse
+# for i in range(frequency_levels):
+#     commands.append({"time": round(start_time + i * offset, 2), "addr": 3, "mode": 1, "duty": 3, "freq": i>>1, "wave": i&1})
+#     commands.append({"time": round(start_time + i * offset + duration, 2), "addr": 3, "mode": 0, "duty": 3, "freq": i>>1, "wave": i&1})
+
+
+'''
+for a given number N of actuators (id from 0 to N-1),
+start_time = 2.0s
+turn on them one-by-one with 0.2s delay, keep all on for 5s, and then turn off one-by-one with 0.2s delay
+'''
+# for num_actuators in range(21):
+#     commands = []
+#     start_time = 2.0
+#     duration = 5.0
+#     delay = 0.2
+#     # num_actuators = 1
+#     for i in range(num_actuators):
+#         commands.append({"time": round(start_time + i * delay, 2), "addr": i, "mode": 1, "duty": 7, "freq": 2, "wave": 0})
+#         commands.append({"time": round(start_time + i * delay + num_actuators*delay + duration, 2), "addr": i, "mode": 0, "duty": 7, "freq": 2, "wave": 0})
+
+'''
+durability test for an actuator,
+in each cycle, turn on the actuator and increase intensity from 0 to 15 (0.1s per level), continue to vibrate for 0.5s, and then turn off for 2s.
+repeat this cycle for 10 times.
+print the cycle number and the time when the cycle starts.
+'''
+start_time = 2.0
+duration = 0.1
+lapse = 0.4
+intensity_levels = 16
+off_time = 2.0
+offset = intensity_levels*duration + lapse + off_time
+num_cycles = 100
 for i in range(num_cycles):
     cycle_start = start_time + i * offset
-    # Rising edge
+    print(f"Cycle {i+1} starts at {cycle_start}s")
     for j in range(intensity_levels):
         commands.append({"time": round(cycle_start + j * duration, 2), "addr": 1, "mode": 1, "duty": j, "freq": 2, "wave": 0})
-    # Falling edge
-    commands.append({"time": round(cycle_start + rise_time + fall_time, 2), "addr": 1, "mode": 0, "duty": 0, "freq": 2, "wave": 0})
-# Optionally, add a stop command at the end with mode = 0
-commands.append({"time": round(start_time + num_cycles * offset, 2), "addr": 1, "mode": 0, "duty": 0, "freq": 2, "wave": 0})
+    commands.append({"time": round(cycle_start + intensity_levels*duration + lapse, 2), "addr": 1, "mode": 0, "duty": 15, "freq": 2, "wave": 0})
 
 
 
@@ -776,7 +841,7 @@ Export the commands to a json file
 commands.sort(key=lambda x: x['addr'])
 commands.sort(key=lambda x: x['time'])
 
-file_path = 'commands/commands_gradual_rise_and_fall.json'
+file_path = f'commands/commands_durability_test.json'
 with open(file_path, "w") as file:
     counter = 0
     for command in commands:
